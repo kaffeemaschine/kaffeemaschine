@@ -43,7 +43,36 @@ class @Alu
     @notifyFC(@functionCode)
   
   compute: ->
-      
+    switch @functionCode
+      # 0: NOP
+      when 0 then return
+      # 1: X<->Y
+      when 1
+        tmp = @xRegister
+        @setXRegister(@yRegister)
+        @setYRegister(tmp)
+      # 2: Z=Z, X->Y, X=0
+      when 2
+        @setYRegister(@xRegister)
+        @setXRegister(0)
+      # 3: Z=Z, Y->X, Y=0
+      when 3
+        @setXRegister(@yRegister)
+        @setYRegister(0)
+      # 4: Z=X
+      when 4
+        @setZRegister(@xRegister)
+        @updateCCFlagsSInt()
+      # 5: Z=Y
+      when 5
+        @setZRegister(@yRegister)
+        @updateCCFlagsSInt()
+
+  updateCCFlagsSInt: ->
+    @setCCFlags(0x8) if @zRegister is 0
+    @setCCFlags(0x4) if @zRegister isnt 0 and Utils.isBitSet(@zRegister, 32) is off
+    @setCCFlags(0x2) if @zRegister isnt 0 and Utils.isBitSet(@zRegister, 32) is on
+    
 
   notifyX: (x) ->
     listener.onSetX?(x) for listener in @aluListeners
