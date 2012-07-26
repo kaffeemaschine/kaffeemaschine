@@ -44,30 +44,40 @@ asyncTest "SetMar notifies listeners", ->
   ram.setMar(5)
 
 test "read memory, 1 byte", ->
-  ram.memory[12] = 0xABCD
+  ram.memory[12] = 0xAB
+  ram.memory[13] = 0xCD
+  ram.memory[14] = 0xEF
+  ram.memory[15] = 0x01
   ram.setFormat(0)
   ram.setMar(12)
   ram.read()
   equal(ram.mdr, 0xAB, "should be 0xAB")
 
 test "read memory, 2 byte", ->
-  ram.memory[12] = 0xABCD
+  ram.memory[12] = 0xAB
+  ram.memory[13] = 0xCD
+  ram.memory[14] = 0xEF
+  ram.memory[15] = 0x01
   ram.setFormat(1)
   ram.setMar(12)
   ram.read()
   equal(ram.mdr, 0xABCD, "should be 0xABCD")
 
 test "read memory, 3 byte", ->
-  ram.memory[12] = 0xABCD
-  ram.memory[13] = 0xEF01
+  ram.memory[12] = 0xAB
+  ram.memory[13] = 0xCD
+  ram.memory[14] = 0xEF
+  ram.memory[15] = 0x01
   ram.setFormat(2)
   ram.setMar(12)
   ram.read()
   equal(ram.mdr, 0xABCDEF, "should be 0xABCDEF")
 
 test "read memory, 4 byte", ->
-  ram.memory[12] = 0xABCD
-  ram.memory[13] = 0xEF01
+  ram.memory[12] = 0xAB
+  ram.memory[13] = 0xCD
+  ram.memory[14] = 0xEF
+  ram.memory[15] = 0x01
   ram.setFormat(3)
   ram.setMar(12)
   ram.read()

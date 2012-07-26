@@ -4,7 +4,7 @@ class @Ram
     @format = 0
     @mar = 0
     @mdr = 0
-    # 16 bit/index, 16K total
+    # 8 bit/index
     @memory = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -90,10 +90,10 @@ class @Ram
   read: ->
     mem = 0
     switch @format
-      when 0 then mem = Utils.extractNum(@memory[@mar], 9, 16)
-      when 1 then mem = @memory[@mar]
-      when 2 then mem = ((@memory[@mar]<<8) | Utils.extractNum(@memory[@mar+1], 9, 16)) >>> 0
-      when 3 then mem = ((@memory[@mar]<<16) | @memory[@mar+1]) >>> 0
+      when 0 then mem = @memory[@mar]
+      when 1 then mem = ((@memory[@mar]<<8) | @memory[@mar+1]) >>> 0
+      when 2 then mem = (((@memory[@mar]<<16) | (@memory[@mar+1]<<8))  | @memory[@mar+2]) >>> 0
+      when 3 then mem = ((((@memory[@mar]<<24) | (@memory[@mar+1]<<16))  | (@memory[@mar+2]<<8)) | @memory[@mar+3]) >>> 0
     @setMdr(mem)
 
   setRamListeners: (listeners) ->
