@@ -44,41 +44,45 @@ asyncTest "SetMar notifies listeners", ->
   ram.setMar(5)
 
 test "read memory, 1 byte", ->
-  ram.memory[12] = 0xAB
-  ram.memory[13] = 0xCD
-  ram.memory[14] = 0xEF
-  ram.memory[15] = 0x01
+  ram.memory[12] = 0x0000ABCD
+  ram.memory[13] = 0xEF010000
   ram.setFormat(0)
-  ram.setMar(12)
+  ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xAB, "should be 0xAB")
 
 test "read memory, 2 byte", ->
-  ram.memory[12] = 0xAB
-  ram.memory[13] = 0xCD
-  ram.memory[14] = 0xEF
-  ram.memory[15] = 0x01
+  ram.memory[12] = 0x0000ABCD
+  ram.memory[13] = 0xEF010000
   ram.setFormat(1)
-  ram.setMar(12)
+  ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xABCD, "should be 0xABCD")
 
 test "read memory, 3 byte", ->
-  ram.memory[12] = 0xAB
-  ram.memory[13] = 0xCD
-  ram.memory[14] = 0xEF
-  ram.memory[15] = 0x01
+  ram.memory[12] = 0x0000ABCD
+  ram.memory[13] = 0xEF010000
   ram.setFormat(2)
-  ram.setMar(12)
+  ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xABCDEF, "should be 0xABCDEF")
 
 test "read memory, 4 byte", ->
-  ram.memory[12] = 0xAB
-  ram.memory[13] = 0xCD
-  ram.memory[14] = 0xEF
-  ram.memory[15] = 0x01
+  ram.memory[12] = 0x0000ABCD
+  ram.memory[13] = 0xEF010000
   ram.setFormat(3)
-  ram.setMar(12)
+  ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xABCDEF01, "should be 0xABCDEF01")
+
+test "getByte", ->
+  ram.memory[0] = 0xABCDEF01
+  ram.memory[1] = 0x23456789
+  equal(ram.getByte(0), 0xAB, "should be 0xAB")
+  equal(ram.getByte(1), 0xCD, "should be 0xCD")
+  equal(ram.getByte(2), 0xEF, "should be 0xEF")
+  equal(ram.getByte(3), 0x01, "should be 0x01")
+  equal(ram.getByte(4), 0x23, "should be 0x23")
+  equal(ram.getByte(5), 0x45, "should be 0x45")
+  equal(ram.getByte(6), 0x67, "should be 0x67")
+  equal(ram.getByte(7), 0x89, "should be 0x89")
