@@ -33,10 +33,11 @@
   <script type="text/coffeescript">
   CoffeeScript.load "src/main.coffee"
   files = ['models/alu.coffee', 'models/ram.coffee',
-  'util/utils.coffee',  'models/cpu.coffee',
+  'util/utils.coffee',  'models/cpu.coffee', 'models/mac.coffee'
   ]
   noTestFiles = ['listeners/ram_listener.coffee',
-  'listeners/alu_listener.coffee', 'listeners/cpu_listener.coffee']
+  'listeners/alu_listener.coffee', 'listeners/cpu_listener.coffee',
+  'listeners/mac_listener.coffee']
   message = document.getElementById 'message'
   message.innerHTML = "Wait for tests [#{files}] to load...<br />"
   CoffeeScript.load "src/#{file}" for file in noTestFiles
