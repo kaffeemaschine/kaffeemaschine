@@ -69,7 +69,7 @@ class @Cpu
   setYFromMDR: ->
     if Utils.isBitSet(@microcode, 43) is on
       @alu.setYRegister @ram.getMdr()
-      @notifySignal("X", "MDR")
+      @notifySignal("Y", "MDR")
   setMCOPFromMDR: ->
       #TODO
   setMCN: ->
