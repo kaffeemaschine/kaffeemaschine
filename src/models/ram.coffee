@@ -60,9 +60,19 @@ class @Ram
       when 2 then byte = Utils.extractNum(mem, 9, 16)
       when 3 then byte = Utils.extractNum(mem, 1, 8)
     return byte
+
+  setByte: (at, val) ->
+    index = Math.floor(at/4)
+    offset = at % 4
+    for bit in [1..8]
+      @memory[index] = Utils.setBit(@memory[index], bit + 8*(3-offset)) if Utils.isBitSet(val, bit) is true
+    @notifySetByte(at,val)
     
   setRamListeners: (listeners) ->
     @eventListeners = listeners 
+
+  notifySetByte: (at, val) ->
+    listener.onSetByte?(at,val) for listener in @eventListeners
 
   notifyMode: (m) ->
     listener.onSetMode?(m) for listener in @eventListeners

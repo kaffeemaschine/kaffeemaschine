@@ -43,6 +43,17 @@ asyncTest "SetMar notifies listeners", ->
 
   ram.setMar(5)
 
+asyncTest "SetByte notifies listeners", ->
+
+  ramListener.setOnSetByte((at, val) ->
+    equal(at, 5, "at should be 5")
+    equal(val, 6, "val should be 6")
+    ramListener.setOnSetByte(undefined)
+    start()
+    )
+
+  ram.setByte(5,6)
+
 test "read memory, 1 byte", ->
   ram.memory[12] = 0x0000ABCD
   ram.memory[13] = 0xEF010000
@@ -86,3 +97,19 @@ test "getByte", ->
   equal(ram.getByte(5), 0x45, "should be 0x45")
   equal(ram.getByte(6), 0x67, "should be 0x67")
   equal(ram.getByte(7), 0x89, "should be 0x89")
+
+test "setByte", ->
+  ram.memory[0] = 0
+  ram.memory[1] = 0
+
+  ram.setByte(0, 0xAB)
+  ram.setByte(1, 0xCD)
+  ram.setByte(2, 0xEF)
+  ram.setByte(3, 0x01)
+  ram.setByte(4, 0x23)
+  ram.setByte(5, 0x45)
+  ram.setByte(6, 0x67)
+  ram.setByte(7, 0x89)
+  
+  equal(ram.memory[0], 0xABCDEF01, "should be 0xABCDEF01")
+  equal(ram.memory[1], 0x23456789, "should be 0x23456789")
