@@ -67,12 +67,30 @@ class @Alu
       when 5
         @setZRegister(@yRegister)
         @updateCCFlagsSInt()
+      # 6: Z=Y+1
+      when 6
+        @setZRegister(((@yRegister+1) & 0xFFFFFFFF) >>> 0)
+        @updateCCFlagsSInt()
+        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0
+      # 7: Z=Y+2
+      when 7
+        @setZRegister(((@yRegister+2) & 0xFFFFFFFF) >>> 0)
+        @updateCCFlagsSInt()
+        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0
+      # 8: Z=Y-1
+      when 8
+        @setZRegister(((@yRegister-1) & 0xFFFFFFFF) >>> 0)
+        @updateCCFlagsSInt()
+        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0xFFFFFFFF
 
   updateCCFlagsSInt: ->
-    @setCCFlags(0x8) if @zRegister is 0
-    @setCCFlags(0x4) if @zRegister isnt 0 and Utils.isBitSet(@zRegister, 32) is off
-    @setCCFlags(0x2) if @zRegister isnt 0 and Utils.isBitSet(@zRegister, 32) is on
-    
+    if @zRegister is 0
+        @setCCFlags(8)
+    else
+        if Utils.isBitSet(@zRegister, 32) is on
+          @setCCFlags(2)
+        else
+          @setCCFlags(4)
 
   notifyX: (x) ->
     listener.onSetX?(x) for listener in @aluListeners

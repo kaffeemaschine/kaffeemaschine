@@ -1,7 +1,7 @@
 class @Utils
   # returns whether the 'bit'-th bit is set in n, bit 1 = LSB
   @isBitSet: (n, bit) ->
-    if ((n>>>(bit-1)) % 2) is 0
+    if (((n>>>(bit-1))>>>0) % 2) is 0
       return false
     else
       return true
