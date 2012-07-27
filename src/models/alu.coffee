@@ -71,7 +71,7 @@ class @Alu
       when 6
         @setZRegister(((@yRegister+1) & 0xFFFFFFFF) >>> 0)
         @updateCCFlagsSInt()
-        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0
+        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x80000000
       # 7: Z=Y+2
       when 7
         @setZRegister(((@yRegister+2) & 0xFFFFFFFF) >>> 0)
@@ -79,6 +79,11 @@ class @Alu
         @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0
       # 8: Z=Y-1
       when 8
+        @setZRegister(((@yRegister-1) & 0xFFFFFFFF) >>> 0)
+        @updateCCFlagsSInt()
+        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x7FFFFFFF
+      # 9: Z=Y-2
+      when 9
         @setZRegister(((@yRegister-1) & 0xFFFFFFFF) >>> 0)
         @updateCCFlagsSInt()
         @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0xFFFFFFFF

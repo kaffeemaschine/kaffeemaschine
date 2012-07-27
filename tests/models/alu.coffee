@@ -69,27 +69,27 @@ test "FunctionCode 0: NOP", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.z, "No change in Z Register" );
   equal( resultState.cc, oldState.cc, "No change in CC Register" );
   equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
-  
+
 test "FunctionCode 1: X<->Y", ->
-  alu.setFunctionCode 1    
+  alu.setFunctionCode 1
   alu.setXRegister 1
   alu.setYRegister 2
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.y, "Swapped with Y Register" );
   equal( resultState.y, oldState.x, "Swapped with X Register" );
   equal( resultState.z, oldState.z, "No change in Z Register" );
   equal( resultState.cc, oldState.cc, "No change in CC Register" );
   equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
-  
+
 test "FunctionCode 2: Z=Z, X->Y, X=0", ->
   alu.setFunctionCode 2
   alu.setXRegister 1
@@ -97,7 +97,7 @@ test "FunctionCode 2: Z=Z, X->Y, X=0", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, 0, "Reset to 0" );
   equal( resultState.y, oldState.x, "Changed to X Register" );
   equal( resultState.z, oldState.z, "No change in Z Register" );
@@ -111,7 +111,7 @@ test "FunctionCode 3: Z=Z, Y->X, Y=0", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.y, "Changed to Y Register" );
   equal( resultState.y, 0, "Reset to 0" );
   equal( resultState.z, oldState.z, "No change in Z Register" );
@@ -125,7 +125,7 @@ test "FunctionCode 4: Z=X, X is zero", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.x, "Changed to X Register" );
@@ -139,7 +139,7 @@ test "FunctionCode 4: Z=X, X is pos", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.x, "Changed to X Register" );
@@ -153,7 +153,7 @@ test "FunctionCode 4: Z=X, X is neg", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.x, "Changed to X Register" );
@@ -167,7 +167,7 @@ test "FunctionCode 5: Z=Y, Y is zero", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.y, "Changed to Y Register" );
@@ -181,7 +181,7 @@ test "FunctionCode 5: Z=Y, Y is pos", ->
   oldState = alu.getState();
   alu.compute();
   resultState = alu.getState();
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" );
   equal( resultState.y, oldState.y, "No change in Y Register" );
   equal( resultState.z, oldState.y, "Changed to Y Register" );
@@ -195,7 +195,7 @@ test "FunctionCode 5: Z=Y, Y is neg", ->
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
-  
+
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
   equal( resultState.z, oldState.y, "Changed to Y Register" )
@@ -214,20 +214,20 @@ test "FunctionCode 6: Z = Y+1", ->
   equal( resultState.z, oldState.y+1, "Changed to Y Register + 1" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x4, "Indicates positive" )
-  
+
 test "FunctionCode 6: Z = Y+1, overflow", ->
   alu.setFunctionCode 6
-  alu.setYRegister 0xFFFFFFFF
+  alu.setYRegister 0x7FFFFFFF
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
 
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0, "Changed to 0 (overflow)" )
+  equal( resultState.z, 0x80000000, "Changed to least possible value (overflow)" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, 0x9, "Indicates zero + overflow" )
-  
+  equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
+
 test "FunctionCode 7: Z = Y+2", ->
   alu.setFunctionCode 7
   alu.setYRegister 1336
@@ -240,7 +240,7 @@ test "FunctionCode 7: Z = Y+2", ->
   equal( resultState.z, oldState.y+2, "Changed to Y Register + 2" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x4, "Indicates positive" )
-  
+
 test "FunctionCode 7: Z = Y+2, overflow", ->
   alu.setFunctionCode 7
   alu.setYRegister 0xFFFFFFFE
@@ -253,7 +253,7 @@ test "FunctionCode 7: Z = Y+2, overflow", ->
   equal( resultState.z, 0, "Changed to 0 (overflow)" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x9, "Indicates zero + overflow" )
-  
+
 test "FunctionCode 8: Z = Y-1", ->
   alu.setFunctionCode 8
   alu.setYRegister 1338
@@ -266,15 +266,15 @@ test "FunctionCode 8: Z = Y-1", ->
   equal( resultState.z, oldState.y-1, "Changed to Y Register + 1" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x4, "Indicates positive" )
-  
+
 test "FunctionCode 8: Z = Y-1, underflow", ->
   alu.setFunctionCode 8
-  alu.setYRegister 0
+  alu.setYRegister 0x80000000
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0xFFFFFFFF, "Changed to max (underflow)" )
+  equal( resultState.z, 0x7FFFFFFF, "Changed to max (underflow)" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
+  equal( resultState.ccFlags, 0x5, "Indicates positive + overflow" )
