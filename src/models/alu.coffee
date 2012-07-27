@@ -8,7 +8,7 @@ class @Alu
       @functionCode = 0
 
   setAluListeners: (l) -> @aluListeners = l
-  
+
   getXRegister: -> @xRegister
   getYRegister: -> @yRegister
   getZRegister: -> @zRegister
@@ -22,7 +22,7 @@ class @Alu
       cc: @ccRegister
       ccFlags: @ccFlags
       fCode: @functionCode
-  
+
   setXRegister: (val) ->
     @xRegister = val
     @notifyX(@xRegister)
@@ -41,52 +41,41 @@ class @Alu
   setFunctionCode: (val) ->
     @functionCode = val
     @notifyFC(@functionCode)
-  
+
   compute: ->
     switch @functionCode
       # 0: NOP
       when 0 then return
-      # 1: X<->Y
-      when 1
-        tmp = @xRegister
-        @setXRegister(@yRegister)
-        @setYRegister(tmp)
-      # 2: Z=Z, X->Y, X=0
+      # 2: X->Z
       when 2
-        @setYRegister(@xRegister)
-        @setXRegister(0)
-      # 3: Z=Z, Y->X, Y=0
-      when 3
-        @setXRegister(@yRegister)
-        @setYRegister(0)
-      # 4: Z=X
-      when 4
         @setZRegister(@xRegister)
         @updateCCFlagsSInt()
-      # 5: Z=Y
-      when 5
+      # 4: Y->Z
+      when 4
         @setZRegister(@yRegister)
         @updateCCFlagsSInt()
-      # 6: Z=Y+1
+      # 6: Z->Y, X<->Y
       when 6
-        @setZRegister(((@yRegister+1) & 0xFFFFFFFF) >>> 0)
+        originalXvalue = @xRegister
+        @setZRegister(@yRegister)
+        @setXRegister(@yRegister)
+        @setYRegister(originalXvalue)
+        @updateCCFlagsSInt()
+      # 8: Y->Z, Y->X
+      when 8
+        @setXRegister(@yRegister)
+        @setZRegister(@yRegister)
+        @updateCCFlagsSInt()
+      # 9: X+1->Z
+      when 9
+        @setZRegister(((@xRegister+1) & 0xFFFFFFFF) >>> 0)
         @updateCCFlagsSInt()
         @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x80000000
-      # 7: Z=Y+2
-      when 7
-        @setZRegister(((@yRegister+2) & 0xFFFFFFFF) >>> 0)
-        @updateCCFlagsSInt()
-        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0
-      # 8: Z=Y-1
-      when 8
-        @setZRegister(((@yRegister-1) & 0xFFFFFFFF) >>> 0)
+      # 10: X-1->Z
+      when 10
+        @setZRegister(((@xRegister-1) & 0xFFFFFFFF) >>> 0)
         @updateCCFlagsSInt()
         @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x7FFFFFFF
-      # 9: Z=Y-2
-      when 9
-        @setZRegister(((@yRegister-1) & 0xFFFFFFFF) >>> 0)
-        @updateCCFlagsSInt()
-        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0xFFFFFFFF
 
   updateCCFlagsSInt: ->
     if @zRegister is 0

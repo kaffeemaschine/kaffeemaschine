@@ -66,132 +66,34 @@ asyncTest "SetCCFlags notifies listeners", ->
 
 test "FunctionCode 0: NOP", ->
   alu.setFunctionCode 0
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
+  oldState = alu.getState()
+  alu.compute()
+  resultState = alu.getState()
 
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.z, "No change in Z Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
+  equal( resultState.x, oldState.x, "No change in X Register" )
+  equal( resultState.y, oldState.y, "No change in Y Register" )
+  equal( resultState.z, oldState.z, "No change in Z Register" )
+  equal( resultState.cc, oldState.cc, "No change in CC Register" )
+  equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" )
 
-test "FunctionCode 1: X<->Y", ->
-  alu.setFunctionCode 1
-  alu.setXRegister 1
-  alu.setYRegister 2
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.y, "Swapped with Y Register" );
-  equal( resultState.y, oldState.x, "Swapped with X Register" );
-  equal( resultState.z, oldState.z, "No change in Z Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
-
-test "FunctionCode 2: Z=Z, X->Y, X=0", ->
+test "FunctionCode 2: Z=X", ->
   alu.setFunctionCode 2
-  alu.setXRegister 1
-  alu.setYRegister 2
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, 0, "Reset to 0" );
-  equal( resultState.y, oldState.x, "Changed to X Register" );
-  equal( resultState.z, oldState.z, "No change in Z Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
-
-test "FunctionCode 3: Z=Z, Y->X, Y=0", ->
-  alu.setFunctionCode 3
-  alu.setXRegister 1
-  alu.setYRegister 2
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.y, "Changed to Y Register" );
-  equal( resultState.y, 0, "Reset to 0" );
-  equal( resultState.z, oldState.z, "No change in Z Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, oldState.ccFlags, "No change in CC Flags" );
-
-test "FunctionCode 4: Z=X, X is zero", ->
-  alu.setFunctionCode 4
-  alu.setXRegister 0
+  alu.setXRegister 1337
   alu.setYRegister 10
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
+  oldState = alu.getState()
+  alu.compute()
+  resultState = alu.getState()
 
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.x, "Changed to X Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, 0x8, "Indicates Zero" );
+  equal( resultState.x, oldState.x, "No change in X Register" )
+  equal( resultState.y, oldState.y, "No change in Y Register" )
+  equal( resultState.z, oldState.x, "Changed to X Register" )
+  equal( resultState.cc, oldState.cc, "No change in CC Register" )
+  equal( resultState.ccFlags, 0x4, "Indicates positive" )
 
-test "FunctionCode 4: Z=X, X is pos", ->
+test "FunctionCode 4: Z=Y", ->
   alu.setFunctionCode 4
-  alu.setXRegister 1
-  alu.setYRegister 10
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.x, "Changed to X Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, 0x4, "Indicates positive" );
-
-test "FunctionCode 4: Z=X, X is neg", ->
-  alu.setFunctionCode 4
-  alu.setXRegister -1
-  alu.setYRegister 10
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.x, "Changed to X Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, 0x2, "Indicates negative" );
-
-test "FunctionCode 5: Z=Y, Y is zero", ->
-  alu.setFunctionCode 5
   alu.setXRegister 10
-  alu.setYRegister 0
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.y, "Changed to Y Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, 0x8, "Indicates Zero" );
-
-test "FunctionCode 5: Z=Y, Y is pos", ->
-  alu.setFunctionCode 5
-  alu.setXRegister 10
-  alu.setYRegister 1
-  oldState = alu.getState();
-  alu.compute();
-  resultState = alu.getState();
-
-  equal( resultState.x, oldState.x, "No change in X Register" );
-  equal( resultState.y, oldState.y, "No change in Y Register" );
-  equal( resultState.z, oldState.y, "Changed to Y Register" );
-  equal( resultState.cc, oldState.cc, "No change in CC Register" );
-  equal( resultState.ccFlags, 0x4, "Indicates positive" );
-
-test "FunctionCode 5: Z=Y, Y is neg", ->
-  alu.setFunctionCode 5
-  alu.setXRegister 10
-  alu.setYRegister -1
+  alu.setYRegister 1337
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
@@ -200,24 +102,52 @@ test "FunctionCode 5: Z=Y, Y is neg", ->
   equal( resultState.y, oldState.y, "No change in Y Register" )
   equal( resultState.z, oldState.y, "Changed to Y Register" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, 0x2, "Indicates negative" )
+  equal( resultState.ccFlags, 0x4, "Indicates positive" )
 
-test "FunctionCode 6: Z = Y+1", ->
+test "FunctionCode 6: Z->Y, X<->Y", ->
   alu.setFunctionCode 6
-  alu.setYRegister 1336
+  alu.setXRegister 1
+  alu.setYRegister 2
+  oldState = alu.getState()
+  alu.compute()
+  resultState = alu.getState()
+
+  equal( resultState.x, oldState.y, "Swapped with Y Register" )
+  equal( resultState.y, oldState.x, "Swapped with X Register" )
+  equal( resultState.z, oldState.y, "Original Y value" )
+  equal( resultState.cc, oldState.cc, "No change in CC Register" )
+  equal( resultState.ccFlags, 0x04, "Indicates positive" )
+
+test "FunctionCode 8: Y->Z, Y->X", ->
+  alu.setFunctionCode 8
+  alu.setXRegister 1
+  alu.setYRegister 2
+  oldState = alu.getState()
+  alu.compute()
+  resultState = alu.getState()
+
+  equal( resultState.x, oldState.y, "Changed to Y Register" )
+  equal( resultState.y, oldState.y, "No change in Y Register" )
+  equal( resultState.z, oldState.y, "Changed to Y Register" )
+  equal( resultState.cc, oldState.cc, "No change in CC Register" )
+  equal( resultState.ccFlags, 0x04, "Indicates positive" )
+
+test "FunctionCode 9: X+1->Z", ->
+  alu.setFunctionCode 9
+  alu.setXRegister 1336
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
 
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, oldState.y+1, "Changed to Y Register + 1" )
+  equal( resultState.z, oldState.x+1, "Changed to X Register + 1" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x4, "Indicates positive" )
 
-test "FunctionCode 6: Z = Y+1, overflow", ->
-  alu.setFunctionCode 6
-  alu.setYRegister 0x7FFFFFFF
+test "FunctionCode 9: X+1->Z, overflow", ->
+  alu.setFunctionCode 9
+  alu.setXRegister 0x7FFFFFFF
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
@@ -228,48 +158,22 @@ test "FunctionCode 6: Z = Y+1, overflow", ->
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
 
-test "FunctionCode 7: Z = Y+2", ->
-  alu.setFunctionCode 7
-  alu.setYRegister 1336
+test "FunctionCode 10: X-1->Z", ->
+  alu.setFunctionCode 10
+  alu.setXRegister 1338
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
 
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, oldState.y+2, "Changed to Y Register + 2" )
+  equal( resultState.z, oldState.x-1, "Changed to Y Register + 1" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x4, "Indicates positive" )
 
-test "FunctionCode 7: Z = Y+2, overflow", ->
-  alu.setFunctionCode 7
-  alu.setYRegister 0xFFFFFFFE
-  oldState = alu.getState()
-  alu.compute()
-  resultState = alu.getState()
-
-  equal( resultState.x, oldState.x, "No change in X Register" )
-  equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0, "Changed to 0 (overflow)" )
-  equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, 0x9, "Indicates zero + overflow" )
-
-test "FunctionCode 8: Z = Y-1", ->
-  alu.setFunctionCode 8
-  alu.setYRegister 1338
-  oldState = alu.getState()
-  alu.compute()
-  resultState = alu.getState()
-
-  equal( resultState.x, oldState.x, "No change in X Register" )
-  equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, oldState.y-1, "Changed to Y Register + 1" )
-  equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, 0x4, "Indicates positive" )
-
-test "FunctionCode 8: Z = Y-1, underflow", ->
-  alu.setFunctionCode 8
-  alu.setYRegister 0x80000000
+test "FunctionCode 10: X-1->Z, underflow", ->
+  alu.setFunctionCode 10
+  alu.setXRegister 0x80000000
   oldState = alu.getState()
   alu.compute()
   resultState = alu.getState()
