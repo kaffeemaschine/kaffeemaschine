@@ -28,9 +28,17 @@
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
   <script type="text/javascript" src="libs/qunit.js"></script>
-  <script type="text/javascript" src="libs/coffee-script.js" charset="utf-8"></script>
+  <script type="text/javascript" src="libs/coffee-script.js"
+	charset="utf-8"></script>
+  <script type="text/javascript" src="libs/jshamcrest.js"
+	charset="utf-8"></script>
+  <script type="text/javascript" src="libs/jsmockito.js"
+	charset="utf-8"></script>
+  
   
   <script type="text/coffeescript">
+  JsHamcrest.Integration.QUnit()
+  JsMockito.Integration.QUnit()
   CoffeeScript.load "src/main.coffee"
   files = ['models/alu.coffee', 'models/ram.coffee',
   'util/utils.coffee',  'models/cpu.coffee', 'models/mac.coffee'

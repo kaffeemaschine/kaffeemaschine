@@ -40,6 +40,9 @@ class @Ram
     @mdr = m
     @notifyMdr(m)
 
+  getMdr: ->
+    @mdr
+
   read: ->
     mem = 0
     switch @format

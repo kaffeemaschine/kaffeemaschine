@@ -9,6 +9,9 @@ class @Mac
     @mcnRegister = 0
     @mcarRegister = 0
 
+  setMacListeners: (l) ->
+    @macListeners = l
+
   setMode: (val) ->
     @mode = val
     @notifySetMode(val)

@@ -1,19 +1,31 @@
 class @Cpu
-  constructor: (@alu = new Alu(), @ram = new Ram(), @cpuListeners = [], @aluListeners = [], @ramListeners = []) ->
+  constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(), @cpuListeners = [], @aluListeners = [], @ramListeners = [], @macListeners = []) ->
     @ram.setRamListeners(@ramListeners)
     @alu.setAluListeners(@aluListeners)
+    @mac.setMacListeners(@macListeners)
     # RAM technically not part of cpu... go ahead and kill me
     @registers = [0,0,0,0,0,0,0,0]
     @nextPhase = 0
-    @microcode = 0
+    @microcode =
+      mode: 0
+      mcnext: 0
+      alufc: 0
+      xbus: 0
+      ybus: 0
+      zbus: 0
+      ioswitch: 0
+      byte: 0
+
+  setCpuListeners: (l) ->
+    @cpuListeners = l
 
   setMicrocode: (code) ->
     @microcode = code
     #update ram mode and ram format
-    @ram.setMode(Utils.extractNum(@microcode, 46, 47))
-    @ram.setFormat(Utils.extractNum(@microcode, 48, 49))
+    @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
+    @ram.setFormat(@microcode.byte)
     #update alu function code
-    @alu.setFunctionCode(Utils.extractNum(@microcode, 9, 16)) 
+    @alu.setFunctionCode(@microcode.alufc) 
 
   setRegister: (register, value) ->
     @registers[register] = value
@@ -34,51 +46,63 @@ class @Cpu
   # get phase
   runGetPhase: ->
     console.log "running get phase"
-    
     @setMDRFromRam()
     @setXFromReg()
     @setYFromReg()
     @setYFromMDR()
     @setMCOPFromMDR()
+    @setMode()
     @setMCN()
     @setMask()
     @setAluFC()
-    @setMCDR()
+    @setMCAR()
     
     @setNextPhase()
 
-  #read from ram? (when [46,47] = 01
+  #read from ram? (when [46,47] = 01)
   setMDRFromRam: ->
-    if Utils.extractNum(@microcode, 46, 47) is 1
+    if Utils.extractNum(@microcode.ioswitch, 1, 2) is 1
       @ram.read()
   # set X in alu from R0-R7
   setXFromReg: ->
-    toXFrom = Utils.getHighestBitSet @microcode, 16, 23
-    toXFrom -= 16 if toXFrom?
+    toXFrom = Utils.getHighestBitSet @microcode.xbus, 1, 8
+    # doc says higher registers overwrite lower, program says otherwise
+    # going with program way
+    toXFrom = 8-toXFrom if toXFrom?
     if toXFrom?
       @alu.setXRegister @registers[toXFrom]
       @notifySignal("X", toXFrom)  
   # set X in alu from R0-R7
   setYFromReg: ->
-    toYFrom = @highestBitSet @microcode, 24, 31
-    toYFrom -= 24 if toYFrom?
+    toYFrom = Utils.getHighestBitSet @microcode.ybus, 1, 8
+    toYFrom = 8-toYFrom if toYFrom?
     if toYFrom?
       @alu.setYRegister @registers[toYFrom]
       @notifySignal("Y", toYFrom)
   # set Y in alu from RAM
   setYFromMDR: ->
-    if Utils.isBitSet(@microcode, 43) is on
+    if Utils.isBitSet(@microcode.ioswitch, 5) is on
       @alu.setYRegister @ram.getMdr()
       @notifySignal("Y", "MDR")
   setMCOPFromMDR: ->
-      #TODO
+    # gui says this happens in phase 3, doc says phase 1, program says phase 1
+    if Utils.isBitSet(@microcode.ioswitch, 4) is on
+      @mac.setMcop Utils.extractNum(@ram.getMdr(), 1, 8)
+      @notifySignal("MCOP", "MDR")
+  setMode: ->
+    @mac.setMode(@microcode.mode)
+    @notifySignal("MICROCODE", "MODE")
   setMCN: ->
-      #TODO
+    @mac.setMcn(@microcode.mcnext)
+    @notifySignal("MICROCODE", "MCN")
   setMask: ->
-      #TODO
+    @mac.setMask(Utils.extractNum(@microcode.mcnext, 1, 4))
+    @notifySignal("MICROCODE", "MASK")
   setAluFC: ->
-      #TODO
-  setMCDR: ->
+    console.log "setting alufc #{@microcode.alufc}"
+    @alu.setFunctionCode @microcode.alufc
+    @notifySignal("MICROCODE", "FC")
+  setMCAR: ->
       #TODO
     
   runCalcPhase: ->
