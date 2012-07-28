@@ -43,41 +43,221 @@ class @Alu
     @notifyFC(@functionCode)
 
   compute: ->
-    switch @functionCode
+    copyCC = Utils.isBitSet(@functionCode, 7)
+    fc = if Utils.isBitSet(@functionCode, 7) then Utils.unsetBit(@functionCode, 7) else @functionCode
+    switch fc
       # 0: NOP
-      when 0 then return
+      # 1: -Z->Z
+      when 1
+        z = if Utils.isNegative(@zRegister) then @zRegister<<0 else @zRegister
+        @setZRegister((-z & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
       # 2: X->Z
       when 2
         @setZRegister(@xRegister)
-        @updateCCFlagsSInt()
+        @updateCCFlags()
+      # 3: -X->Z
+      when 3
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        @setZRegister((-x & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
       # 4: Y->Z
       when 4
         @setZRegister(@yRegister)
-        @updateCCFlagsSInt()
-      # 6: Z->Y, X<->Y
+        @updateCCFlags()
+      # 5: -Y->Z
+      when 5
+        y = if Utils.isNegative(@yxRegister) then @yRegister<<0 else @yRegister
+        @setZRegister((-y & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
+      # 6: Y->Z, X<->Y
       when 6
         originalXvalue = @xRegister
         @setZRegister(@yRegister)
         @setXRegister(@yRegister)
         @setYRegister(originalXvalue)
-        @updateCCFlagsSInt()
+        @updateCCFlags()
+      # 7: X->Z, X<->Y
+      when 7
+        originalXvalue = @xRegister
+        @setZRegister(@xRegister)
+        @setXRegister(@yRegister)
+        @setYRegister(originalXvalue)
+        @updateCCFlags()
       # 8: Y->Z, Y->X
       when 8
         @setXRegister(@yRegister)
         @setZRegister(@yRegister)
-        @updateCCFlagsSInt()
+        @updateCCFlags()
       # 9: X+1->Z
       when 9
-        @setZRegister(((@xRegister+1) & 0xFFFFFFFF) >>> 0)
-        @updateCCFlagsSInt()
-        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x80000000
+        if @xRegister is 0x7FFFFFFF
+          @setZRegister 0x80000000
+          @setCCFlags(0x5) # positive + overflow
+        else
+          # no overflow
+          x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+          @setZRegister(((x+1) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+          @updateCCFlags()
       # 10: X-1->Z
       when 10
-        @setZRegister(((@xRegister-1) & 0xFFFFFFFF) >>> 0)
-        @updateCCFlagsSInt()
-        @setCCFlags(Utils.setBit(@ccFlags, 1)) if @zRegister is 0x7FFFFFFF
-
-  updateCCFlagsSInt: ->
+        if @xRegister is 0x80000000
+          @setZRegister 0x7FFFFFFF
+          @setCCFlags(0x3) # negative + overflow
+        else
+          # no overflow
+          x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+          @setZRegister(((x-1) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+          @updateCCFlags()
+      # 11: X+Y->Z
+      when 11
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((x+y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        if x+y > 0x7FFFFFFF
+          # overflow
+          @setCCFlags(0x5) # positive + overflow
+        else if x+y < (0x80000000<<0)
+          # underflow
+          @setCCFlags(0x3) # negative + overflow
+        else
+          # no overflow
+          @updateCCFlags()
+      # 12: X-Y->Z
+      when 12
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((x-y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        if x-y > 0x7FFFFFFF
+          # overflow
+          @setCCFlags(0x5) # positive + overflow
+        else if x-y < (0x80000000<<0)
+          # underflow
+          @setCCFlags(0x3) # negative + overflow
+        else
+          # no overflow
+          @updateCCFlags()
+      # 13: X*Y->Z
+      when 13
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((x*y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        if x*y > 0x7FFFFFFF
+          # overflow
+          @setCCFlags(0x5) # positive + overflow
+        else if x*y < (0x80000000<<0)
+          # underflow
+          @setCCFlags(0x3) # negative + overflow
+        else
+          # no overflow
+          @updateCCFlags()
+      # 14: X/Y->Z
+      when 14
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        if y is 0
+          @setCCFlags(Utils.setBit(@ccFlags, 1))
+        else
+          @setZRegister(((Math.floor(x/y)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+          @updateCCFlags()
+      # 15: X%Y->Z
+      when 15
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        if y is 0
+          @setCCFlags(Utils.setBit(@ccFlags, 1))
+        else
+          @setZRegister(((x%y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+          @updateCCFlags()
+      # 16: X SAL Y->Z
+      when 16
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((@xRegister<<(y%32)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
+      # 17: X SAR Y->Z
+      when 17
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((@xRegister>>>(y%32)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
+      # 18: CMP arithm. X Y->Z // !refactor or keep in sync with FC#12!
+      when 18
+        x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
+        y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
+        @setZRegister(((x-y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        if x-y > 0x7FFFFFFF
+          # overflow
+          @setCCFlags(0x5) # positive + overflow
+        else if x-y < (0x80000000<<0)
+          # underflow
+          @setCCFlags(0x3) # negative + overflow
+        else
+          # no overflow
+          @updateCCFlags()
+      # 19: X AND Y -> Z
+      when 19
+        @setZRegister((@xRegister & @yRegister) >>> 0)
+        @updateCCFlags()
+      # 20: X NAND Y -> Z
+      when 20
+        @setZRegister(((@xRegister & @yRegister) ^ 0xFFFFFFFF) >>> 0)
+        @updateCCFlags()
+      # 21: X OR Y -> Z
+      when 21
+        @setZRegister((@xRegister | @yRegister) >>> 0)
+        @updateCCFlags()
+      # 22: X NOR Y -> Z
+      when 22
+        @setZRegister(((@xRegister | @yRegister) ^ 0xFFFFFFFF) >>> 0)
+        @updateCCFlags()
+      # 23: X XOR Y -> Z
+      when 23
+        @setZRegister((@xRegister ^ @yRegister) >>> 0)
+        @updateCCFlags()
+      # 24: X NXOR Y -> Z
+      when 24
+        @setZRegister(((@xRegister ^ @yRegister) ^ 0xFFFFFFFF) >>> 0)
+        @updateCCFlags()
+      # 25: X SLL Y -> Z
+      when 25
+        shift = @yRegister % 32
+        console.log "sl is #{(@xRegister>>>(32-shift))}"
+        @setZRegister(((@xRegister<<shift) | (@xRegister>>>(32-shift))) >>> 0)
+        @updateCCFlags()
+      # 26: X SLR Y -> Z
+      when 26
+        shift = @yRegister % 32
+        @setZRegister(((@xRegister<<(32-shift)) | (@xRegister>>>shift)) >>> 0)
+        @updateCCFlags()
+      # 27: CMP log. X Y -> Z
+      when 27
+        @setZRegister(((@xRegister-@yRegister) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        @updateCCFlags()
+      # 28: 0->X
+      when 28
+        @setXRegister(0)
+      # 29: 0xFFFFFFFF->X
+      when 29
+        @setXRegister(0xFFFFFFFF)
+      # 30: 0->Y
+      when 30
+        @setYRegister(0)
+      # 31: 0xFFFFFFFF->Y
+      when 31
+        @setYRegister(0xFFFFFFFF)
+      else
+        # 32-47: FC-32->X, X->Z
+        if fc >= 32 and fc < 48
+          @setXRegister(fc-32)
+          @setZRegister(@xRegister)
+          @updateCCFlags()
+        # 48-63: FC-48->Y, Y->Z
+        else if fc >= 48 and fc < 64
+          @setYRegister(fc-48)
+          @setZRegister(@yRegister)
+          @updateCCFlags()
+    @setCCRegister(@ccFlags) if copyCC is on  
+        
+  updateCCFlags: ->
     if @zRegister is 0
         @setCCFlags(8)
     else

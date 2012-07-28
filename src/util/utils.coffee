@@ -10,6 +10,17 @@ class @Utils
   @setBit: (n, bit) ->
     (n | 1<<(bit-1)) >>> 0      
 
+  # returns the number n with the 'bit'-th bit set to 0, bit 1 = LSB
+  @unsetBit: (n, bit) ->
+    (n ^ 1<<(bit-1)) >>> 0  
+
+  # returns number n with 'bit'-th bit flipped, bit 1 = LSB
+  @toggleBit: (n, bit) ->
+    if @isBitSet(n, bit)
+      return @unsetBit(n,bit)
+    else
+      return @setBit(n,bit)
+
   # return the highest bit set in n in the range from - to, bit 1 = LSB
   @getHighestBitSet: (n, from, to) ->
     for bit in [to..from]
@@ -30,3 +41,6 @@ class @Utils
       num = @setBit(num, bit-from+1) if @isBitSet(n,bit) is on
     return num
 
+  # returns true when unsigned 32 bit value n would be negative in twos complement
+  @isNegative: (n) ->
+    @isBitSet(n, 32)
