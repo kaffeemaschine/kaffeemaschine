@@ -107,7 +107,11 @@ class @Cpu
   runCalcPhase: ->
     console.log "running calc phase"
     # run alu with given opcode
-    # TODO
+    @alu.compute()
+    # set mac cc register
+    @mac.setCC(@alu.getCCRegister())
+    # compute mcar next
+    @mac.compute()
     @setNextPhase()
     
   runPutPhase: ->

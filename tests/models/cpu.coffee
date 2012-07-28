@@ -386,3 +386,31 @@ test "GetPhase sets ALU's function code signals listeners", ->
   cpu.runGetPhase()
   verify(mockListener).onSignal("MICROCODE", "FC")
   ok(true)
+
+test "CalcPhase calls compute in alu", ->
+  mockAlu = mock(Alu)
+  mockRam = mock(Ram)
+  mockMac = mock(Mac)
+  cpu = new Cpu(mockAlu, mockRam, mockMac);
+  cpu.runCalcPhase()
+  verify(mockAlu).compute()
+  ok(true)
+
+test "CalcPhase sets ccRegister in mac", ->
+  mockAlu = mock(Alu)
+  mockRam = mock(Ram)
+  mockMac = mock(Mac)
+  JsMockito.when(mockAlu).getCCRegister().thenReturn(42)
+  cpu = new Cpu(mockAlu, mockRam, mockMac);
+  cpu.runCalcPhase()
+  verify(mockMac).setCC(42)
+  ok(true)
+
+test "CalcPhase calls compute in mac", ->
+  mockAlu = mock(Alu)
+  mockRam = mock(Ram)
+  mockMac = mock(Mac)
+  cpu = new Cpu(mockAlu, mockRam, mockMac);
+  cpu.runCalcPhase()
+  verify(mockMac).compute()
+  ok(true)
