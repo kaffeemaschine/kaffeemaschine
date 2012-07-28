@@ -65,16 +65,15 @@ class @Cpu
       @ram.read()
   # set X in alu from R0-R7
   setXFromReg: ->
-    toXFrom = Utils.getHighestBitSet @microcode.xbus, 1, 8
-    # doc says higher registers overwrite lower, program says otherwise
-    # going with program way
+    toXFrom = Utils.getLowestBitSet @microcode.xbus, 1, 8
     toXFrom = 8-toXFrom if toXFrom?
+    console.log "toXFrom = #{toXFrom}"
     if toXFrom?
       @alu.setXRegister @registers[toXFrom]
       @notifySignal("X", toXFrom)  
-  # set X in alu from R0-R7
+  # set Y in alu from R0-R7
   setYFromReg: ->
-    toYFrom = Utils.getHighestBitSet @microcode.ybus, 1, 8
+    toYFrom = Utils.getLowestBitSet @microcode.ybus, 1, 8
     toYFrom = 8-toYFrom if toYFrom?
     if toYFrom?
       @alu.setYRegister @registers[toYFrom]

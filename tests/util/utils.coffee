@@ -13,7 +13,12 @@ test "getHighestBitSet", ->
   num = parseInt '101111', 2
   bit = Utils.getHighestBitSet num, 1, 5
   equal( bit, 4, "Highest bit set is 4" );
-  
+
+test "getLowestBitSet", ->
+  num = parseInt '101111', 2
+  bit = Utils.getLowestBitSet num, 1, 5
+  equal( bit, 1, "Lowest bit set is 1" );
+
 test "setBit", ->
   tmp = 0
   tmp = Utils.setBit(tmp, 1)

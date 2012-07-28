@@ -94,7 +94,7 @@ test "GetPhase xbus sets X register", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockAlu).setXRegister(1)
+  verify(mockAlu).setXRegister(8)
   ok(true)
 
 test "GetPhase ybus sets Y register", ->
@@ -120,7 +120,7 @@ test "GetPhase ybus sets Y register", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockAlu).setYRegister(1)
+  verify(mockAlu).setYRegister(8)
   ok(true)
 
 test "GetPhase ioswitch bit 5 sets Y register", ->
@@ -178,7 +178,7 @@ test "GetPhase xbus notifies listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("X", 6)
+  verify(mockListener).onSignal("X", 7)
   ok(true)
 
 test "GetPhase ybus notifies listeners", ->
@@ -197,7 +197,7 @@ test "GetPhase ybus notifies listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("Y", 6)
+  verify(mockListener).onSignal("Y", 7)
   ok(true)
 
 test "GetPhase ioswitch bit 4 sets MCOP register", ->

@@ -16,6 +16,13 @@ class @Utils
       return bit if @isBitSet(n,bit) is on
     return undefined
 
+  # return the lowest bit set in n in the range from - to, bit 1 = LSB
+  @getLowestBitSet: (n, from, to) ->
+    for bit in [from..to]
+      return bit if @isBitSet(n,bit) is on
+    return undefined
+  
+
   # extract from - to bits from n
   @extractNum: (n, from, to) ->
     num = 0
