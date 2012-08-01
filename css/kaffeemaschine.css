@@ -22,6 +22,10 @@ background-image: -webkit-radial-gradient(center top, circle farthest-corner, #7
 background-image: radial-gradient(circle farthest-corner at center top, #7A7A7A 0%, #080808 100%);
 }
 
+#canvas-wrap { position:relative } /* Make this a positioned parent */
+#overlay     { position:absolute; top:0px; left:0px; }
+
+
 .input-micro       { width: 30px; }
 
 .component {
