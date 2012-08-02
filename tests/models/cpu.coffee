@@ -691,7 +691,7 @@ test "Integration Test: Simple Run", ->
     byte: 0
   cpu.setMicrocode(mc1)
   rom.setMicrocode(0, mc1)
-  rom.setMicrocode(0, mc2)
+  rom.setMicrocode(1, mc2)
   console.log "now"
   cpu.runTact()
   console.log "alu.z = #{alu.zRegister}"

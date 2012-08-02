@@ -166,6 +166,7 @@ class @Cpu
         @notifySignal(8-bit, "Z") 
 
   getNextMicrocode: ->
+    @rom.setMcar(@mac.mcarNextRegister)
     @setMicrocode(@rom.read())
 
   setNextPhase: ->
