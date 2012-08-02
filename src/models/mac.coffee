@@ -1,13 +1,6 @@
 class @Mac
   constructor: (@macListeners = []) ->
-    @mode = 0
-    @ccRegister = 0
-    @maskRegister = 0
-    @times4 = 0
-    @mcopRegister = 0
-    @mcarNextRegister = 0
-    @mcnRegister = 0
-    @mcarRegister = 0
+    @reset()
 
   setMacListeners: (l) ->
     @macListeners = l
@@ -69,9 +62,7 @@ class @Mac
               @setMcarNext(@mcarRegister + 1)
           when 3
              @setMcarNext(@mcarRegister + 1)
-        
-          
-                
+
   notifySetMode : (val) ->
     listener.onSetMode?(val) for listener in @macListeners
   notifySetCC : (val) ->
@@ -88,3 +79,13 @@ class @Mac
       listener.onSetMcn?(val) for listener in @macListeners
   notifySetMcar : (val) ->
       listener.onSetMcar?(val) for listener in @macListeners
+
+  reset: () ->
+    @mode = 0
+    @ccRegister = Utils.randomBitSequence 4
+    @maskRegister = 0
+    @times4 = 0
+    @mcopRegister = 0
+    @mcarNextRegister = Utils.randomBitSequence 12
+    @mcnRegister = 0
+    @mcarRegister = Utils.randomBitSequence 12
