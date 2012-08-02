@@ -33,8 +33,8 @@ class @Ram
     @setMdr(@mdr)
 
   setMar: (m) ->
-    @mar = m
-    @notifyMar(m)
+    @mar = (m & 0x7FF) >>> 0
+    @notifyMar(@mar)
 
   setMdr: (m) ->
     @mdr = Utils.extractNum(m, 1, 1 + (@format+1)*8)
