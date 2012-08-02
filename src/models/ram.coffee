@@ -43,6 +43,10 @@ class @Ram
   getMdr: ->
     @mdr
 
+
+  getMar: ->
+    @mar
+
   read: ->
     mem = 0
     switch @format

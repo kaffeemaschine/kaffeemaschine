@@ -24,6 +24,7 @@ class @Cpu
 
   setMicrocode: (code) ->
     @microcode = code
+    console.log
     #update ram mode and ram format
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
     @ram.setFormat(@microcode.byte)
@@ -120,8 +121,52 @@ class @Cpu
     
   runPutPhase: ->
     console.log "running put phase"
-    # TODO 
+    @setMarFromZ()
+    @setMdrFromZ()
+    @setZFromMdr()
+    @setZFromMar()
+    @setRamFromMdr()
+    @setRegistersFromZ()
+    @getNextMicrocode()
+    
+    
     @setNextPhase()
+
+  setMarFromZ: ->
+    if Utils.isBitSet(@microcode.ioswitch, 8) is on
+
+      @ram.setMar(@alu.getZRegister())
+      @notifySignal("MAR", "Z")
+
+  setMdrFromZ: ->
+    if Utils.isBitSet(@microcode.ioswitch, 7) is on
+      @ram.setMdr(@alu.getZRegister())
+      @notifySignal("MDR", "Z")
+
+  setZFromMdr: ->
+    if Utils.isBitSet(@microcode.ioswitch, 6) is on
+      @alu.setZRegister(@ram.getMdr())
+      @notifySignal("Z", "MDR")
+
+  setZFromMar: ->
+    if Utils.isBitSet(@microcode.ioswitch, 3) is on
+      @alu.setZRegister(@ram.getMar())
+      @notifySignal("Z", "MAR")
+
+  setRamFromMdr: ->
+    console.log "num is #{Utils.extractNum(@microcode.ioswitch, 1, 2)}"
+    if Utils.extractNum(@microcode.ioswitch, 1, 2) is 2
+      console.log "doing it!"
+      @ram.write()
+
+  setRegistersFromZ: ->
+    for bit in [1..8]
+      if Utils.isBitSet(@microcode.zbus, bit) is on       
+        @setRegister(8-bit, @alu.getZRegister())
+        @notifySignal(8-bit, "Z") 
+
+  getNextMicrocode: ->
+    @setMicrocode(@rom.read())
 
   setNextPhase: ->
     @nextPhase = (@nextPhase + 1) % 3
