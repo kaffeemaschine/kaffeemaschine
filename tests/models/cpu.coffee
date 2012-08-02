@@ -459,3 +459,24 @@ test "GetPhase setMCAR signals listeners", ->
   cpu.runGetPhase()
   verify(mockListener).onSignal("MACMCAR", "ROMMCAR")
   ok(true)
+
+test "reset", ->
+  microcode_at_0 = 42
+
+  mockAlu = mock(Alu)
+  mockRam = mock(Ram)
+  mockMac = mock(Mac)
+  mockRom = mock(Rom)
+
+  JsMockito.when(mockRom).getMicrocode(0).thenReturn(microcode_at_0)
+
+  cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
+
+  cpu.reset()
+
+  verify(mockAlu).reset()
+  verify(mockRam).reset()
+  verify(mockMac).reset()
+  verify(mockRom).reset()
+  verify(mockRom).getMicrocode(0)
+  equal(cpu.microcode, microcode_at_0, "cpu loads microcode at address 0")

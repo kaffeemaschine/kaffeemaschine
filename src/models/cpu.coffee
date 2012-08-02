@@ -28,24 +28,24 @@ class @Cpu
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
     @ram.setFormat(@microcode.byte)
     #update alu function code
-    @alu.setFunctionCode(@microcode.alufc) 
+    @alu.setFunctionCode(@microcode.alufc)
 
   setRegister: (register, value) ->
     @registers[register] = value
     @notifySetRegister(register, value)
-        
+
   # run until current tact ends (tact = get- + calc- + put-phase)
   runTact: ->
     @runPhase()
     @runPhase() until @nextPhase is 0
-     
+
   # run next phase in current tact
   runPhase: ->
     switch @nextPhase
       when 0 then @runGetPhase()
       when 1 then @runCalcPhase()
       when 2 then @runPutPhase()
-     
+
   # get phase
   runGetPhase: ->
     console.log "running get phase"
@@ -59,7 +59,7 @@ class @Cpu
     @setMask()
     @setAluFC()
     @setMCAR()
-    
+
     @setNextPhase()
 
   #read from ram? (when [46,47] = 01)
@@ -73,7 +73,7 @@ class @Cpu
     console.log "toXFrom = #{toXFrom}"
     if toXFrom?
       @alu.setXRegister @registers[toXFrom]
-      @notifySignal("X", toXFrom)  
+      @notifySignal("X", toXFrom)
   # set Y in alu from R0-R7
   setYFromReg: ->
     toYFrom = Utils.getLowestBitSet @microcode.ybus, 1, 8
@@ -107,7 +107,7 @@ class @Cpu
   setMCAR: ->
     @mac.setMcar @rom.getMcar()
     @notifySignal("MACMCAR", "ROMMCAR")
-    
+
   runCalcPhase: ->
     console.log "running calc phase"
     # run alu with given opcode
@@ -117,10 +117,10 @@ class @Cpu
     # compute mcar next
     @mac.compute()
     @setNextPhase()
-    
+
   runPutPhase: ->
     console.log "running put phase"
-    # TODO 
+    # TODO
     @setNextPhase()
 
   setNextPhase: ->
@@ -135,3 +135,12 @@ class @Cpu
 
   notifySetRegister: (register, value) ->
     listener.onSetRegister?(register, value) for listener in @cpuListeners
+
+  # resets alu and mac
+  reset: ->
+    @alu.reset()
+    @mac.reset()
+    @ram.reset()
+    @rom.reset()
+    console.log("foooooooooooooooooooooo")
+    @microcode = @rom.getMicrocode 0
