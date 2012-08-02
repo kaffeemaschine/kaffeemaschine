@@ -52,6 +52,12 @@ class @Ram
       when 3 then mem = ((((@getByte(@mar)<<24) | (@getByte(@mar+1)<<16))  | (@getByte(@mar+2)<<8)) | @getByte(@mar+3)) >>> 0
     @setMdr(mem)
 
+  write: ->
+    for at in [0..@format]
+      console.log "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
+      console.log "writing @#{@mar+at} #{Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
+      @setByte(@mar+at, Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8))
+      
   getByte: (at) ->
     index = Math.floor(at/4)
     offset = at % 4

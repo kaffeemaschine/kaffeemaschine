@@ -62,6 +62,15 @@ test "read memory, 1 byte", ->
   ram.read()
   equal(ram.mdr, 0xAB, "should be 0xAB")
 
+test "write memory, 1 byte", ->
+  ram.memory[12] = 0x0
+  ram.memory[13] = 0x0
+  ram.setFormat(0)
+  ram.setMdr(0xAB)
+  ram.setMar(50)
+  ram.write()
+  equal(ram.memory[12], 0x0000AB00, "should be 0x0000AB00")
+
 test "read memory, 2 byte", ->
   ram.memory[12] = 0x0000ABCD
   ram.memory[13] = 0xEF010000
@@ -69,6 +78,15 @@ test "read memory, 2 byte", ->
   ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xABCD, "should be 0xABCD")
+
+test "write memory, 2 byte", ->
+  ram.memory[12] = 0x0
+  ram.memory[13] = 0x0
+  ram.setFormat(1)
+  ram.setMdr(0xABCD)
+  ram.setMar(50)
+  ram.write()
+  equal(ram.memory[12], 0x0000ABCD, "should be 0x0000ABCD")
 
 test "read memory, 3 byte", ->
   ram.memory[12] = 0x0000ABCD
@@ -78,6 +96,16 @@ test "read memory, 3 byte", ->
   ram.read()
   equal(ram.mdr, 0xABCDEF, "should be 0xABCDEF")
 
+test "write memory, 3 byte", ->
+  ram.memory[12] = 0x0
+  ram.memory[13] = 0x0
+  ram.setFormat(2)
+  ram.setMdr(0xABCDEF)
+  ram.setMar(50)
+  ram.write()
+  equal(ram.memory[12], 0x0000ABCD, "should be 0x0000ABCD")
+  equal(ram.memory[13], 0xEF000000, "should be 0xEF000000")
+
 test "read memory, 4 byte", ->
   ram.memory[12] = 0x0000ABCD
   ram.memory[13] = 0xEF010000
@@ -85,6 +113,16 @@ test "read memory, 4 byte", ->
   ram.setMar(50)
   ram.read()
   equal(ram.mdr, 0xABCDEF01, "should be 0xABCDEF01")
+
+test "write memory, 4 byte", ->
+  ram.memory[12] = 0x0
+  ram.memory[13] = 0x0
+  ram.setFormat(3)
+  ram.setMdr(0xABCDEF01)
+  ram.setMar(50)
+  ram.write()
+  equal(ram.memory[12], 0x0000ABCD, "should be 0x0000ABCD")
+  equal(ram.memory[13], 0xEF010000, "should be 0xEF010000")
 
 test "getByte", ->
   ram.memory[0] = 0xABCDEF01
