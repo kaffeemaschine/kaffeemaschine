@@ -32,6 +32,9 @@ class @Rom
   read: ->
     return @getMicrocode(@mcar)
 
+  setRomListeners: (listeners) ->
+    @romListeners = listeners
+
   notifySetMcar: (val) ->
     listener.onSetMcar?(val) for listener in @romListeners
 

@@ -1,8 +1,9 @@
 class @Cpu
-  constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(), @cpuListeners = [], @aluListeners = [], @ramListeners = [], @macListeners = []) ->
+  constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(), @rom = new Rom(), @cpuListeners = [], @aluListeners = [], @ramListeners = [], @macListeners = [], @romListeners = []) ->
     @ram.setRamListeners(@ramListeners)
     @alu.setAluListeners(@aluListeners)
     @mac.setMacListeners(@macListeners)
+    @rom.setRomListeners(@romListeners)
     # RAM technically not part of cpu... go ahead and kill me
     @registers = [0,0,0,0,0,0,0,0]
     @nextPhase = 0
@@ -92,19 +93,20 @@ class @Cpu
       @notifySignal("MCOP", "MDR")
   setMode: ->
     @mac.setMode(@microcode.mode)
-    @notifySignal("MICROCODE", "MODE")
+    @notifySignal("MODE", "MICROCODE")
   setMCN: ->
     @mac.setMcn(@microcode.mcnext)
-    @notifySignal("MICROCODE", "MCN")
+    @notifySignal("MCN", "MICROCODE")
   setMask: ->
     @mac.setMask(Utils.extractNum(@microcode.mcnext, 1, 4))
-    @notifySignal("MICROCODE", "MASK")
+    @notifySignal("MASK", "MICROCODE")
   setAluFC: ->
     console.log "setting alufc #{@microcode.alufc}"
     @alu.setFunctionCode @microcode.alufc
-    @notifySignal("MICROCODE", "FC")
+    @notifySignal("FC", "MICROCODE")
   setMCAR: ->
-      #TODO
+    @mac.setMcar @rom.getMcar()
+    @notifySignal("MACMCAR", "ROMMCAR")
     
   runCalcPhase: ->
     console.log "running calc phase"
