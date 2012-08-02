@@ -15,6 +15,8 @@ class @Cpu
       zbus: 0
       ioswitch: 0
       byte: 0
+      mnemonic: ""
+      remarks: ""
 
   setCpuListeners: (l) ->
     @cpuListeners = l

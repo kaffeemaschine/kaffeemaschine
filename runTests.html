@@ -41,9 +41,9 @@
   JsMockito.Integration.QUnit()
   CoffeeScript.load "src/main.coffee"
   files = ['models/alu.coffee', 'models/ram.coffee',
-  'util/utils.coffee',  'models/cpu.coffee', 'models/mac.coffee'
+  'util/utils.coffee',  'models/cpu.coffee', 'models/mac.coffee', 'models/rom.coffee'
   ]
-  noTestFiles = ['listeners/ram_listener.coffee',
+  noTestFiles = ['listeners/ram_listener.coffee', 'listeners/rom_listener.coffee',
   'listeners/alu_listener.coffee', 'listeners/cpu_listener.coffee',
   'listeners/mac_listener.coffee']
   message = document.getElementById 'message'
