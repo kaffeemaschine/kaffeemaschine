@@ -76,3 +76,7 @@ test "read return microcode @ address mcar", ->
   rom.setMicrocode(5, microcode)
   rom.setMcar(5)
   deepEqual(rom.read(), microcode, "MC should've been equal")
+
+test "reset", ->
+  rom.reset()
+  equal(rom.mcar, 0, "mcar initial 0")

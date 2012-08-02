@@ -56,3 +56,7 @@ test "isNegative false", ->
 test "extractNum", ->
   num = parseInt '101101', 2
   equal( Utils.extractNum(num, 2, 4), 6, "Extracted num should be 6" );
+
+test "randomBitSequence", ->
+  num = Utils.randomBitSequence(32)
+  ok(num.toString(2).length <= 32)

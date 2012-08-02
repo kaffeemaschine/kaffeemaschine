@@ -12,7 +12,7 @@ asyncTest "SetMode notifies listeners", ->
     )
 
   mac.setMode(2)
-  
+
 asyncTest "SetCC notifies listeners", ->
 
   macListener.setOnSetCC((val) ->
@@ -159,3 +159,12 @@ test "compute, mode 3, jumpMode 3", ->
   mac.setCC(1)
   mac.compute()
   equal(mac.mcarNextRegister, 1, "MCARNext should be 1")
+
+test "reset", ->
+  mac.reset()
+
+  equal(mac.mode, 0, "initial 0")
+  equal(mac.maskRegister, 0, "initial 0")
+  equal(mac.times4, 0, "initial 0")
+  equal(mac.mcopRegister, 0, "initial 0")
+  equal(mac.mcnRegister, 0, "initial 0")

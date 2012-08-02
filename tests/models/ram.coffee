@@ -1,7 +1,7 @@
 module("RAM")
 
 ramListener = new RamListener()
-ram = new Ram([ramListener])  
+ram = new Ram([ramListener])
 
 asyncTest "SetMode notifies listeners", ->
 
@@ -148,6 +148,16 @@ test "setByte", ->
   ram.setByte(5, 0x45)
   ram.setByte(6, 0x67)
   ram.setByte(7, 0x89)
-  
+
   equal(ram.memory[0], 0xABCDEF01, "should be 0xABCDEF01")
   equal(ram.memory[1], 0x23456789, "should be 0x23456789")
+
+test "reset", ->
+  ram.memory[42] = 1337
+  ram.reset()
+
+  equal(ram.mode, 0, "mode initial 0")
+  equal(ram.format, 0, "format initial 0")
+  equal(ram.mdr, 0, "mdr initial 0")
+  equal(ram.memory.length, 512, "memory still has 512 cells")
+  equal(ram.memory[42], 1337, "memory was not resetted")

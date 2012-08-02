@@ -552,7 +552,7 @@ test "PutPhase ioswitch bit 3 sets z", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
-  cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom);
+  cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   JsMockito.when(mockRam).getMar().thenReturn(42)
   JsMockito.when(mockRom).read().thenReturn(
     mode: 0
@@ -697,3 +697,23 @@ test "Integration Test: Simple Run", ->
   console.log "alu.z = #{alu.zRegister}"
   cpu.runTact()
   equal(ram.getByte(0x10), 0x10, "should be equal")
+
+test "reset", ->
+  microcode_at_0 = 42
+
+  mockAlu = mock(Alu)
+  mockRam = mock(Ram)
+  mockMac = mock(Mac)
+  mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMicrocode(0).thenReturn(microcode_at_0)
+
+  cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
+
+  cpu.reset()
+
+  verify(mockAlu).reset()
+  verify(mockRam).reset()
+  verify(mockMac).reset()
+  verify(mockRom).reset()
+  verify(mockRom).getMicrocode(0)
+  equal(cpu.microcode, microcode_at_0, "cpu loads microcode at address 0")

@@ -1,9 +1,6 @@
 class @Ram
   constructor: (@eventListeners = []) ->
-    @mode = 0
-    @format = 0
-    @mar = 0
-    @mdr = 0
+    @reset()
     # 4byte/index, 16K total
     @memory = [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -21,7 +18,7 @@ class @Ram
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                
+
   setMode: (m) ->
     @mode = m
     @notifyMode(m)
@@ -61,7 +58,7 @@ class @Ram
       console.log "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
       console.log "writing @#{@mar+at} #{Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
       @setByte(@mar+at, Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8))
-      
+
   getByte: (at) ->
     index = Math.floor(at/4)
     offset = at % 4
@@ -80,9 +77,9 @@ class @Ram
     for bit in [1..8]
       @memory[index] = Utils.setBit(@memory[index], bit + 8*(3-offset)) if Utils.isBitSet(val, bit) is true
     @notifySetByte(at,val)
-    
+
   setRamListeners: (listeners) ->
-    @eventListeners = listeners 
+    @eventListeners = listeners
 
   notifySetByte: (at, val) ->
     listener.onSetByte?(at,val) for listener in @eventListeners
@@ -98,3 +95,9 @@ class @Ram
 
   notifyMdr: (m) ->
     listener.onSetMdr?(m) for listener in @eventListeners
+
+  reset: () ->
+    @mode = 0
+    @format = 0
+    @mar = Utils.randomBitSequence 12
+    @mdr = 0

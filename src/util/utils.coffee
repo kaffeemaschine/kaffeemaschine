@@ -44,3 +44,7 @@ class @Utils
   # returns true when unsigned 32 bit value n would be negative in twos complement
   @isNegative: (n) ->
     @isBitSet(n, 32)
+
+  # returns random number of bit length less or equal to n
+  @randomBitSequence: (n) ->
+    Math.floor(Math.random() * Math.pow(2,n))

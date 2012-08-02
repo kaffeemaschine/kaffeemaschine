@@ -1,6 +1,6 @@
 class @Rom
   constructor: (@romListeners = []) ->
-    @mcar = 0
+    @reset()
     @memory = []
 
   setMcar: (m) ->
@@ -40,3 +40,6 @@ class @Rom
 
   notifySetMc: (at, val) ->
     listener.onSetMc?(at,val) for listener in @romListeners
+
+  reset: () ->
+    @mcar = 0

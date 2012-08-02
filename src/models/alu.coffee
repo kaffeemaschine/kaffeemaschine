@@ -1,11 +1,6 @@
 class @Alu
   constructor: (@aluListeners = []) ->
-      @xRegister = 0
-      @yRegister = 0
-      @zRegister = 0
-      @ccRegister = 0
-      @ccFlags = 0
-      @functionCode = 0
+    @reset()
 
   setAluListeners: (l) -> @aluListeners = l
 
@@ -255,8 +250,8 @@ class @Alu
           @setYRegister(fc-48)
           @setZRegister(@yRegister)
           @updateCCFlags()
-    @setCCRegister(@ccFlags) if copyCC is on  
-        
+    @setCCRegister(@ccFlags) if copyCC is on
+
   updateCCFlags: ->
     if @zRegister is 0
         @setCCFlags(8)
@@ -283,3 +278,13 @@ class @Alu
 
   notifyFC: (x) ->
     listener.onSetFC?(x) for listener in @aluListeners
+
+  reset: () ->
+    @functionCode = 0
+
+    # set register & flags to random values
+    @xRegister = Utils.randomBitSequence 32
+    @yRegister = Utils.randomBitSequence 32
+    @zRegister = Utils.randomBitSequence 32
+    @ccRegister = Utils.randomBitSequence 4
+    @ccFlags = Utils.randomBitSequence 4

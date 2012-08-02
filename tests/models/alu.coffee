@@ -805,3 +805,8 @@ test "FunctionCode 48-63: FC-48->Y, Y->Z", ->
     equal( resultState.z, fc - 48, "Changed to fc - 32" )
     equal( resultState.cc, oldState.cc, "No change in CC Register" )
     equal( resultState.ccFlags, ccval, "Changed to #{ccval}" )
+
+  test "reset", ->
+    alu.reset()
+    equal(alu.getFunctionCode(), 0, "Initial function code is 0")
+
