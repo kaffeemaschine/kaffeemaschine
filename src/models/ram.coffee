@@ -30,15 +30,15 @@ class @Ram
     @format = f
     @notifyFormat(f)
     # update mdr to new format
-    @setMdr(Utils.extractNum(@mdr, 1, 1 + (f+1)*8))
+    @setMdr(@mdr)
 
   setMar: (m) ->
     @mar = m
     @notifyMar(m)
 
   setMdr: (m) ->
-    @mdr = m
-    @notifyMdr(m)
+    @mdr = Utils.extractNum(m, 1, 1 + (@format+1)*8)
+    @notifyMdr(@mdr)
 
   getMdr: ->
     @mdr
