@@ -664,3 +664,36 @@ test "PutPhase retrieves next microcode", ->
   cpu.runPutPhase()
   verify(mockRom).read()
   ok(true)
+
+test "Integration Test: Simple Run", ->
+  rom = new Rom()
+  alu = new Alu()
+  ram = new Ram()
+  mac = new Mac()
+  cpu = new Cpu(alu, ram, mac, rom);
+  mc1 =
+    mode: 1 # mcar+1+4xmcn
+    mcnext: 0x0 # mcn auf 0
+    alufc: 0x28 # Z = 8
+    xbus: 0
+    ybus: 0
+    zbus: 0x1 # 8->r7
+    ioswitch: 0
+    byte: 0
+  mc2 =
+    mode: 1 # mcar+1+4xmcn
+    mcnext: 0x0 # mcn auf 0
+    alufc: 0xB # +8
+    xbus: 0x1
+    ybus: 0x1
+    zbus: 0x1 # 8->r7
+    ioswitch: 0xC2 # write at 16
+    byte: 0
+  cpu.setMicrocode(mc1)
+  rom.setMicrocode(0, mc1)
+  rom.setMicrocode(0, mc2)
+  console.log "now"
+  cpu.runTact()
+  console.log "alu.z = #{alu.zRegister}"
+  cpu.runTact()
+  equal(ram.getByte(0x10), 0x10, "should be equal")
