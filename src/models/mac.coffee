@@ -81,11 +81,11 @@ class @Mac
       listener.onSetMcar?(val) for listener in @macListeners
 
   reset: () ->
-    @mode = 0
-    @ccRegister = Utils.randomBitSequence 4
-    @maskRegister = 0
-    @times4 = 0
-    @mcopRegister = 0
-    @mcarNextRegister = Utils.randomBitSequence 12
-    @mcnRegister = 0
-    @mcarRegister = Utils.randomBitSequence 12
+    @setMode 0
+    @setCC(Utils.randomBitSequence 4)
+    @setMask 0
+    @setTimes4 0
+    @setMcop 0
+    @setMcarNext(Utils.randomBitSequence 12)
+    @setMcn 0
+    @setMcar(Utils.randomBitSequence 12)

@@ -188,4 +188,4 @@ class @Cpu
     @mac.reset()
     @ram.reset()
     @rom.reset()
-    @microcode = @rom.getMicrocode 0
+    @setMicrocode (@rom.getMicrocode 0)

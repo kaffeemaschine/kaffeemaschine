@@ -97,7 +97,7 @@ class @Ram
     listener.onSetMdr?(m) for listener in @eventListeners
 
   reset: () ->
-    @mode = 0
-    @format = 0
-    @mar = Utils.randomBitSequence 12
-    @mdr = 0
+    @setMode 0
+    @setFormat 0
+    @setMar(Utils.randomBitSequence 12)
+    @setMdr 0

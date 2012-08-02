@@ -280,11 +280,11 @@ class @Alu
     listener.onSetFC?(x) for listener in @aluListeners
 
   reset: () ->
-    @functionCode = 0
+    @setFunctionCode 0
 
     # set register & flags to random values
-    @xRegister = Utils.randomBitSequence 32
-    @yRegister = Utils.randomBitSequence 32
-    @zRegister = Utils.randomBitSequence 32
-    @ccRegister = Utils.randomBitSequence 4
-    @ccFlags = Utils.randomBitSequence 4
+    @setXRegister(Utils.randomBitSequence 32)
+    @setZRegister(Utils.randomBitSequence 32)
+    @setZRegister(Utils.randomBitSequence 32)
+    @setCCRegister(Utils.randomBitSequence 4)
+    @setCCFlags(Utils.randomBitSequence 4)

@@ -42,4 +42,4 @@ class @Rom
     listener.onSetMc?(at,val) for listener in @romListeners
 
   reset: () ->
-    @mcar = 0
+    @setMcar 0
