@@ -1,5 +1,6 @@
 class @AluListener
-  constructor: (@onSetX = undefined, @onSetY = undefined, @onSetZ = undefined, @onSetCC = undefined, @onSetFlags = undefined, @onsetFC = undefined) ->
+  constructor: (@onSetX = undefined, @onSetY = undefined, @onSetZ = undefined,
+      @onSetCC = undefined, @onSetFlags = undefined, @onsetFC = undefined) ->
 
   setOnSetX: (f) -> @onSetX = f
   setOnSetY: (f) -> @onSetY = f

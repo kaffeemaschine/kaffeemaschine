@@ -61,7 +61,7 @@ class @Mac
             else
               @setMcarNext(@mcarRegister + 1)
           when 3
-             @setMcarNext(@mcarRegister + 1)
+            @setMcarNext(@mcarRegister + 1)
 
   notifySetMode : (val) ->
     listener.onSetMode?(val) for listener in @macListeners
@@ -70,15 +70,15 @@ class @Mac
   notifySetMask : (val) ->
     listener.onSetMask?(val) for listener in @macListeners
   notifySetTimes4 : (val) ->
-      listener.onSetTimes4?(val) for listener in @macListeners
+    listener.onSetTimes4?(val) for listener in @macListeners
   notifySetMcop : (val) ->
-      listener.onSetMcop?(val) for listener in @macListeners
+    listener.onSetMcop?(val) for listener in @macListeners
   notifySetMcarNext : (val) ->
-      listener.onSetMcarNext?(val) for listener in @macListeners
+    listener.onSetMcarNext?(val) for listener in @macListeners
   notifySetMcn : (val) ->
-      listener.onSetMcn?(val) for listener in @macListeners
+    listener.onSetMcn?(val) for listener in @macListeners
   notifySetMcar : (val) ->
-      listener.onSetMcar?(val) for listener in @macListeners
+    listener.onSetMcar?(val) for listener in @macListeners
 
   reset: () ->
     @setMode 0

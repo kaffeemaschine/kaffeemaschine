@@ -8,11 +8,11 @@ class @Utils
 
   # returns the number n with the 'bit'-th bit set to 1, bit 1 = LSB
   @setBit: (n, bit) ->
-    (n | 1<<(bit-1)) >>> 0      
+    (n | 1<<(bit-1)) >>> 0
 
   # returns the number n with the 'bit'-th bit set to 0, bit 1 = LSB
   @unsetBit: (n, bit) ->
-    (n ^ 1<<(bit-1)) >>> 0  
+    (n ^ 1<<(bit-1)) >>> 0
 
   # returns number n with 'bit'-th bit flipped, bit 1 = LSB
   @toggleBit: (n, bit) ->
@@ -32,7 +32,7 @@ class @Utils
     for bit in [from..to]
       return bit if @isBitSet(n,bit) is on
     return undefined
-  
+
 
   # extract from - to bits from n
   @extractNum: (n, from, to) ->
@@ -41,7 +41,8 @@ class @Utils
       num = @setBit(num, bit-from+1) if @isBitSet(n,bit) is on
     return num
 
-  # returns true when unsigned 32 bit value n would be negative in twos complement
+  # returns true when unsigned 32 bit value n would be negative
+  # in twos complement
   @isNegative: (n) ->
     @isBitSet(n, 32)
 

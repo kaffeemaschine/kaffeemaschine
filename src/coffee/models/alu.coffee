@@ -11,12 +11,12 @@ class @Alu
   getCCFlags: -> @ccFlags
   getFunctionCode: -> @functionCode
   getState: ->
-      x: @xRegister
-      y: @yRegister
-      z: @zRegister
-      cc: @ccRegister
-      ccFlags: @ccFlags
-      fCode: @functionCode
+    x: @xRegister
+    y: @yRegister
+    z: @zRegister
+    cc: @ccRegister
+    ccFlags: @ccFlags
+    fCode: @functionCode
 
   setXRegister: (val) ->
     @xRegister = val
@@ -39,7 +39,11 @@ class @Alu
 
   compute: ->
     copyCC = Utils.isBitSet(@functionCode, 7)
-    fc = if Utils.isBitSet(@functionCode, 7) then Utils.unsetBit(@functionCode, 7) else @functionCode
+
+    if Utils.isBitSet(@functionCode, 7)
+      fc = Utils.unsetBit(@functionCode, 7)
+    else
+      fc = @functionCode
     switch fc
       # 0: NOP
       # 1: -Z->Z
@@ -153,7 +157,8 @@ class @Alu
         if y is 0
           @setCCFlags(Utils.setBit(@ccFlags, 1))
         else
-          @setZRegister(((Math.floor(x/y)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+          # use >>> to get unsigned value
+          @setZRegister(((Math.floor(x/y)) & 0xFFFFFFFF) >>> 0)
           @updateCCFlags()
       # 15: X%Y->Z
       when 15
@@ -167,12 +172,14 @@ class @Alu
       # 16: X SAL Y->Z
       when 16
         y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
-        @setZRegister(((@xRegister<<(y%32)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        # use >>> to get unsigned value
+        @setZRegister(((@xRegister<<(y%32)) & 0xFFFFFFFF) >>> 0)
         @updateCCFlags()
       # 17: X SAR Y->Z
       when 17
         y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
-        @setZRegister(((@xRegister>>>(y%32)) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        # use >>> to get unsigned value
+        @setZRegister(((@xRegister>>>(y%32)) & 0xFFFFFFFF) >>> 0)
         @updateCCFlags()
       # 18: CMP arithm. X Y->Z // !refactor or keep in sync with FC#12!
       when 18
@@ -225,7 +232,8 @@ class @Alu
         @updateCCFlags()
       # 27: CMP log. X Y -> Z
       when 27
-        @setZRegister(((@xRegister-@yRegister) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
+        # use >>> to get unsigned value
+        @setZRegister(((@xRegister-@yRegister) & 0xFFFFFFFF) >>> 0)
         @updateCCFlags()
       # 28: 0->X
       when 28
@@ -254,12 +262,12 @@ class @Alu
 
   updateCCFlags: ->
     if @zRegister is 0
-        @setCCFlags(8)
+      @setCCFlags(8)
     else
-        if Utils.isBitSet(@zRegister, 32) is on
-          @setCCFlags(2)
-        else
-          @setCCFlags(4)
+      if Utils.isBitSet(@zRegister, 32) is on
+        @setCCFlags(2)
+      else
+        @setCCFlags(4)
 
   notifyX: (x) ->
     listener.onSetX?(x) for listener in @aluListeners

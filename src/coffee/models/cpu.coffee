@@ -1,5 +1,8 @@
 class @Cpu
-  constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(), @rom = new Rom(), @cpuListeners = [], @aluListeners = [], @ramListeners = [], @macListeners = [], @romListeners = []) ->
+  constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(),
+      @rom = new Rom(), @cpuListeners = [], @aluListeners = [],
+      @ramListeners = [], @macListeners = [], @romListeners = []) ->
+
     @ram.setRamListeners(@ramListeners)
     @alu.setAluListeners(@aluListeners)
     @mac.setMacListeners(@macListeners)
@@ -128,8 +131,8 @@ class @Cpu
     @setRamFromMdr()
     @setRegistersFromZ()
     @getNextMicrocode()
-    
-    
+
+
     @setNextPhase()
 
   setMarFromZ: ->
@@ -161,9 +164,9 @@ class @Cpu
 
   setRegistersFromZ: ->
     for bit in [1..8]
-      if Utils.isBitSet(@microcode.zbus, bit) is on       
+      if Utils.isBitSet(@microcode.zbus, bit) is on
         @setRegister(8-bit, @alu.getZRegister())
-        @notifySignal(8-bit, "Z") 
+        @notifySignal(8-bit, "Z")
 
   getNextMicrocode: ->
     @rom.setMcar(@mac.mcarNextRegister)

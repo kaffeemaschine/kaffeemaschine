@@ -1,5 +1,8 @@
 class @MacListener
-  constructor: (@onSetMode = undefined, @onSetCC = undefined, @onSetMask = undefined, @onSetTimes4 = undefined, @onSetMcop = undefined, @onSetMcarNext = undefined, @onSetMcn = undefined, @onSetMcar = undefined) ->
+  constructor: (@onSetMode = undefined, @onSetCC = undefined,
+      @onSetMask = undefined, @onSetTimes4 = undefined, @onSetMcop = undefined,
+      @onSetMcarNext = undefined, @onSetMcn = undefined,
+      @onSetMcar = undefined) ->
   setOnSetMode: (f) ->
     @onSetMode = f
   setOnSetCC: (f) ->

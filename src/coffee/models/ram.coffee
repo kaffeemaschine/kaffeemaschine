@@ -49,15 +49,27 @@ class @Ram
     switch @format
       when 0 then mem = @getByte(@mar)
       when 1 then mem = ((@getByte(@mar)<<8) | @getByte(@mar+1)) >>> 0
-      when 2 then mem = (((@getByte(@mar)<<16) | (@getByte(@mar+1)<<8))  | @getByte(@mar+2)) >>> 0
-      when 3 then mem = ((((@getByte(@mar)<<24) | (@getByte(@mar+1)<<16))  | (@getByte(@mar+2)<<8)) | @getByte(@mar+3)) >>> 0
+      when 2
+        mem = @getByte(@mar)<<16
+        mem |= @getByte(@mar+1)<<8
+        mem |= @getByte(@mar+2)
+        mem = mem >>> 0
+      when 3
+        mem = @getByte(@mar)<<24
+        mem |= @getByte(@mar+1)<<16
+        mem |= @getByte(@mar+2)<<8
+        mem |= @getByte(@mar+3)
+        mem |= mem >>> 0
     @setMdr(mem)
 
   write: ->
     for at in [0..@format]
-      console.log "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
-      console.log "writing @#{@mar+at} #{Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
-      @setByte(@mar+at, Utils.extractNum(@mdr, (@format-at)*8+1, (@format-at)*8+8))
+      # TODO: use logging framework
+      # console.log "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
+      # console.log "writing @#{@mar+at} #{Utils.extractNum(@mdr,
+      #                   (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
+      @setByte(@mar+at, Utils.extractNum(@mdr, (@format-at)*8+1,
+                (@format-at)*8+8))
 
   getByte: (at) ->
     index = Math.floor(at/4)
@@ -75,7 +87,8 @@ class @Ram
     index = Math.floor(at/4)
     offset = at % 4
     for bit in [1..8]
-      @memory[index] = Utils.setBit(@memory[index], bit + 8*(3-offset)) if Utils.isBitSet(val, bit) is true
+      if Utils.isBitSet(val, bit) is true
+        @memory[index] = Utils.setBit(@memory[index], bit + 8*(3-offset))
     @notifySetByte(at,val)
 
   setRamListeners: (listeners) ->

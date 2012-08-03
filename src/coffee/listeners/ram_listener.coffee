@@ -1,5 +1,6 @@
 class @RamListener
-  constructor: (@onSetFormat = undefined, @onSetMode = undefined, @onSetMar = undefined, @onSetMdr = undefined, @onSetByte = undefined) ->
+  constructor: (@onSetFormat = undefined, @onSetMode = undefined,
+      @onSetMar = undefined, @onSetMdr = undefined, @onSetByte = undefined) ->
   setOnSetFormat: (f) ->
     @onSetFormat = f
   setOnSetMode: (f) ->
