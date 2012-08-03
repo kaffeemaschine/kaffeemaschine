@@ -54,7 +54,7 @@
   message.innerHTML = "Wait for tests [#{files}] to load...<br />"
   CoffeeScript.load "../src/coffee/#{file}" for file in noTestFiles
   for file in files
-    lib = "../src/#{file}"
+    lib = "../src/coffee/#{file}"
     load_test = ->
       test = "coffee/#{file}"
       -> CoffeeScript.load(test, -> message.innerHTML += "loaded #{test}<br/>")
