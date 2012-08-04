@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     project : {
       coffee_src : 'src/coffee/**/*.coffee',
       site_src: ['site/**/*.html', 'site/**/*.css'],
-      lib : ['site/lib/*.js'],
+      lib : ['src/lib/*.js', 'site/lib/*.js'],
       build_dir : "build/"
     },
     concat: {
@@ -16,8 +16,37 @@ module.exports = function(grunt) {
                           + '+ "javascript/lib_all.js" %>'
       },
       all: {
-        src: '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/*.js" %>',
+        src: ['<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/lib_all.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/lib_all.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/utils.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/mac.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/mac_listener.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/ram.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/ram_listener.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/rom.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/rom_listener.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/alu.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/alu_listener.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/cpu.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/cpu_listener.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/view.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/main.js" %>'
+              ],
         dest: '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/kaffeemaschine_all.js" %>'
       }
