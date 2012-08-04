@@ -1,18 +1,20 @@
+log = Utils.getLogger "View"
 $(window).resize ->
-  console.log(
-    $('#registers-r1-btn').offset().top - $('#registers-r0-btn').offset().top
-  )
+  log.debug -> $('#registers-r1-btn').offset().top -
+                      $('#registers-r0-btn').offset().top
 
 class @ConductorPathView
   constructor: (@strokeStyle = "#000", @fillEmpty = "#fff",
       @lineWidth = 0.5, @pathWidth = 6) ->
+
+    @log = Utils.getLogger "ConductorPathView"
 
     @createCanvas()
     @drawXBus()
     @drawYBus()
 
   drawXBus: ->
-    console.log "drawing x bus"
+    @log.debug -> "drawing x bus"
     @context.strokeStyle = @strokeStyle
     @context.fillStyle = @fillEmpty
     @context.lineWidth = @lineWidth
@@ -77,7 +79,7 @@ class @ConductorPathView
     @context.fill()
 
   drawYBus: ->
-    console.log "drawing y bus"
+    @log.debug -> "drawing y bus"
     @context.strokeStyle = @strokeStyle
     @context.lineWidth = @lineWidth
     xPos = $('#registers').offset().left - $('#overlay').offset().left +
@@ -161,4 +163,4 @@ class @ConductorPathView
     @context.clearRect 0, 0, @canvas.width, @canvas.height
 
 cpv = new ConductorPathView
-console.log "cpv = #{cpv}"
+log.debug -> "cpv = #{cpv}"

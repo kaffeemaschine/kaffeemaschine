@@ -3,6 +3,8 @@ class @Cpu
       @rom = new Rom(), @cpuListeners = [], @aluListeners = [],
       @ramListeners = [], @macListeners = [], @romListeners = []) ->
 
+    @log = Utils.getLogger 'Cpu'
+
     @ram.setRamListeners(@ramListeners)
     @alu.setAluListeners(@aluListeners)
     @mac.setMacListeners(@macListeners)
@@ -27,7 +29,6 @@ class @Cpu
 
   setMicrocode: (code) ->
     @microcode = code
-    console.log
     #update ram mode and ram format
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
     @ram.setFormat(@microcode.byte)
@@ -52,7 +53,7 @@ class @Cpu
 
   # get phase
   runGetPhase: ->
-    console.log "running get phase"
+    @log.info -> "running get phase"
     @setMDRFromRam()
     @setXFromReg()
     @setYFromReg()
@@ -74,7 +75,7 @@ class @Cpu
   setXFromReg: ->
     toXFrom = Utils.getLowestBitSet @microcode.xbus, 1, 8
     toXFrom = 8-toXFrom if toXFrom?
-    console.log "toXFrom = #{toXFrom}"
+    @log.debug -> "toXFrom = #{toXFrom}"
     if toXFrom?
       @alu.setXRegister @registers[toXFrom]
       @notifySignal("X", toXFrom)
@@ -105,7 +106,7 @@ class @Cpu
     @mac.setMask(Utils.extractNum(@microcode.mcnext, 1, 4))
     @notifySignal("MASK", "MICROCODE")
   setAluFC: ->
-    console.log "setting alufc #{@microcode.alufc}"
+    @log.debug @, -> "setting alufc #{@microcode.alufc}"
     @alu.setFunctionCode @microcode.alufc
     @notifySignal("FC", "MICROCODE")
   setMCAR: ->
@@ -113,7 +114,7 @@ class @Cpu
     @notifySignal("MACMCAR", "ROMMCAR")
 
   runCalcPhase: ->
-    console.log "running calc phase"
+    @log.info -> "running calc phase"
     # run alu with given opcode
     @alu.compute()
     # set mac cc register
@@ -123,7 +124,7 @@ class @Cpu
     @setNextPhase()
 
   runPutPhase: ->
-    console.log "running put phase"
+    @log.info -> "running put phase"
     @setMarFromZ()
     @setMdrFromZ()
     @setZFromMdr()
@@ -157,9 +158,9 @@ class @Cpu
       @notifySignal("Z", "MAR")
 
   setRamFromMdr: ->
-    console.log "num is #{Utils.extractNum(@microcode.ioswitch, 1, 2)}"
+    @log.debug @, -> "num is #{Utils.extractNum(@microcode.ioswitch, 1, 2)}"
     if Utils.extractNum(@microcode.ioswitch, 1, 2) is 2
-      console.log "doing it!"
+      @log.debug -> "doing it!"
       @ram.write()
 
   setRegistersFromZ: ->

@@ -1,6 +1,7 @@
 class @Alu
   constructor: (@aluListeners = []) ->
     @reset()
+    @log = Utils.getLogger "Alu"
 
   setAluListeners: (l) -> @aluListeners = l
 
@@ -222,7 +223,7 @@ class @Alu
       # 25: X SLL Y -> Z
       when 25
         shift = @yRegister % 32
-        console.log "sl is #{(@xRegister>>>(32-shift))}"
+        @log.debug @, -> "sl is #{(@xRegister>>>(32-shift))}"
         @setZRegister(((@xRegister<<shift) | (@xRegister>>>(32-shift))) >>> 0)
         @updateCCFlags()
       # 26: X SLR Y -> Z

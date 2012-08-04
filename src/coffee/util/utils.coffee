@@ -1,3 +1,5 @@
+log = log4javascript.getLogger()
+
 class @Utils
   # returns whether the 'bit'-th bit is set in n, bit 1 = LSB
   @isBitSet: (n, bit) ->
@@ -49,3 +51,28 @@ class @Utils
   # returns random number of bit length less or equal to n
   @randomBitSequence: (n) ->
     Math.floor(Math.random() * Math.pow(2,n))
+
+  @getLogger: (prefix) ->
+    # Prefixes each logging statement with the given prefix.
+    # Accepts 2 or 3 arguments:
+    #   prefixLogging(logfun, callback)
+    #   prefixLogging(logfun, invoker, callback)
+    prefixLogging:(logfun, invoker, callback) ->
+      if callback?
+        msg = callback.call(invoker)
+      else
+        callback = invoker
+        msg = callback()
+      logfun.call(log, '[' + prefix + '] ' + msg)
+    trace: (invoker, callback) ->
+      @prefixLogging(log.trace, invoker, callback) if log.isTraceEnabled()
+    debug: (invoker, callback) ->
+      @prefixLogging(log.debug, invoker, callback) if log.isDebugEnabled()
+    info: (invoker, callback) ->
+      @prefixLogging(log.info, invoker, callback) if log.isInfoEnabled()
+    warn: (invoker, callback) ->
+      @prefixLogging(log.warn, invoker, callback) if log.isWarnEnabled()
+    error: (invoker, callback) ->
+      @prefixLogging(log.error, invoker, callback) if log.isErrorEnabled()
+    fatal: (invoker, callback) ->
+      @prefixLogging(log.fatal, invoker, callback) if log.isFatalEnabled()

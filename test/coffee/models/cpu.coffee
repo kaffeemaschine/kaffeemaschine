@@ -601,7 +601,6 @@ test "PutPhase ioswitch bit 1,2 = 2 triggers write", ->
     zbus: 0
     ioswitch: 0x2
     byte: 0)
-  console.log "doing it?"
   cpu.runPutPhase()
   verify(mockRam).write()
   ok(true)
@@ -631,7 +630,6 @@ test "PutPhase zbus sets registers", ->
     zbus: 0xFF
     ioswitch: 0x2
     byte: 0)
-  console.log "doing it?"
   cpu.runPutPhase()
   deepEqual(cpu.registers, [42,42,42,42,42,42,42,42], "all should be 42")
 
@@ -660,7 +658,6 @@ test "PutPhase retrieves next microcode", ->
     zbus: 0
     ioswitch: 0
     byte: 0)
-  console.log "doing it?"
   cpu.runPutPhase()
   verify(mockRom).read()
   ok(true)
@@ -692,9 +689,7 @@ test "Integration Test: Simple Run", ->
   cpu.setMicrocode(mc1)
   rom.setMicrocode(0, mc1)
   rom.setMicrocode(1, mc2)
-  console.log "now"
   cpu.runTact()
-  console.log "alu.z = #{alu.zRegister}"
   cpu.runTact()
   equal(ram.getByte(0x10), 0x10, "should be equal")
 

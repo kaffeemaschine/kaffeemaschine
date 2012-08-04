@@ -1,5 +1,6 @@
 class @Ram
   constructor: (@eventListeners = []) ->
+    @log = Utils.getLogger "Ram"
     @reset()
     # 4byte/index, 16K total
     @memory = [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -64,10 +65,9 @@ class @Ram
 
   write: ->
     for at in [0..@format]
-      # TODO: use logging framework
-      # console.log "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
-      # console.log "writing @#{@mar+at} #{Utils.extractNum(@mdr,
-      #                   (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
+      @log.debug @, -> "l: #{(@format-at)*8+1} r: #{(@format-at)*8+8}"
+      @log.debug @, -> "writing @#{@mar+at} #{Utils.extractNum(@mdr,
+                         (@format-at)*8+1, (@format-at)*8+8).toString(16)}"
       @setByte(@mar+at, Utils.extractNum(@mdr, (@format-at)*8+1,
                 (@format-at)*8+8))
 
