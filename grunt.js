@@ -3,11 +3,12 @@ module.exports = function(grunt) {
   var fs = require('fs');
 
   grunt.initConfig({
-    project : {
-      coffee_src : 'src/coffee/**/*.coffee',
+    project: {
+      coffee_src: 'src/coffee/**/*.coffee',
       site_src: ['site/**/*.html', 'site/**/*.css'],
-      lib : ['src/lib/*.js', 'site/lib/*.js'],
-      build_dir : "build/"
+      lib: ['src/lib/*.js', 'site/lib/*.js'],
+      conf: 'src/config/*.js',
+      build_dir: "build/"
     },
     concat: {
       lib: {
@@ -15,37 +16,40 @@ module.exports = function(grunt) {
         dest: '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/lib_all.js" %>'
       },
+      conf: {
+        src: '<config:project.conf>',
+        dest: '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/conf_all.js" %>'
+      },
+      main_earlyfiles: {
+        src: ['<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/util/**/*.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/models/**/*.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/listener/**/*.js" %>'
+              ],
+        dest: '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/main_earlyfiles_all.js" %>'
+      },
+      main_latefiles: {
+        src: ['<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/ui/**/*.js" %>',
+              '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/main.js" %>',
+              ],
+        dest: '<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/main_latefiles_all.js" %>'
+      },
       all: {
         src: ['<%= grunt.config("project.build_dir")'
                           + '+ "javascript/lib_all.js" %>',
               '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/lib_all.js" %>',
+                          + '+ "javascript/conf_all.js" %>',
               '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/utils.js" %>',
+                          + '+ "javascript/main_earlyfiles_all.js" %>',
               '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/mac.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/mac_listener.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/ram.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/ram_listener.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/rom.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/rom_listener.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/alu.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/alu_listener.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/cpu.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/cpu_listener.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/view.js" %>',
-              '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/main.js" %>'
+                          + '+ "javascript/main_latefiles_all.js" %>',
               ],
         dest: '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/kaffeemaschine_all.js" %>'
@@ -65,6 +69,8 @@ module.exports = function(grunt) {
     }
   });
 
+grunt.registerTask('bundle', 'concat:lib concat:conf concat:main_earlyfiles concat:main_latefiles concat:all');
+
 grunt.registerTask('build:coffee', 'Compile coffeescript to javascript.',
   function() {
     var files = grunt.file.expandFiles(grunt.config("project.coffee_src"));
@@ -72,8 +78,12 @@ grunt.registerTask('build:coffee', 'Compile coffeescript to javascript.',
 
     var coffee = require('coffee-script');
     files.forEach(function(filepath) {
-        var target_name = path.basename(filepath).replace(/\.coffee$/, '.js');
-        var target_path = target_dir + target_name;
+        // strip src/coffee from each filepath
+        var relative_path = filepath.replace(/^src\/coffee\//,'');
+        // replace extension .coffee with .js
+        relative_path = relative_path.replace(/\.coffee$/, '.js');
+
+        var target_path = target_dir + relative_path;
         try {
           grunt.log.write("Compile " + filepath + " to "
                                         + target_path + "... ");
@@ -89,7 +99,7 @@ grunt.registerTask('build:coffee', 'Compile coffeescript to javascript.',
     });
   });
 
-var build_site_requirements = 'clean:bundle build:coffee concat:lib concat:all';
+var build_site_requirements = 'clean:bundle build:coffee bundle';
 grunt.registerTask('build-site', 'Generate html site.',
   function() {
     this.requires(build_site_requirements);
