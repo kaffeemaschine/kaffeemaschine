@@ -15,7 +15,7 @@ asyncTest "SetMicrocode notifies listeners", ->
       byte: 8
       mnemonic: "9"
       remarks: "0"
-  
+
   romListener.setOnSetMc((at, mc) ->
     equal(at, 5, "at should be 5")
     deepEqual(mc, microcode, "MC should've been equal")
@@ -28,7 +28,7 @@ asyncTest "SetMicrocode notifies listeners", ->
 
 asyncTest "SetMcar notifies listeners", ->
   mcar = 42
-  
+
   romListener.setOnSetMcar((m) ->
     equal(m, mcar, "mcar should be 42")
 

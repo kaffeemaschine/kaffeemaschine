@@ -298,7 +298,8 @@ test "FunctionCode 9: X+1->Z when overflow", ->
 
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x80000000, "Changed to least possible value (overflow)" )
+  equal( resultState.z, 0x80000000,
+            "Changed to least possible value (overflow)" )
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x5, "Indicates positive + overflow" )
 
@@ -362,7 +363,8 @@ test "FunctionCode 11: X+Y->Z, overflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x80000000, "Changed to least possible value (overflow)")
+  equal( resultState.z, 0x80000000,
+            "Changed to least possible value (overflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x5, "Indicates positive + overflow" )
 
@@ -375,7 +377,8 @@ test "FunctionCode 11: X+Y->Z, underflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x7FFFFFFF, "Changed to highest possible value (underflow)")
+  equal( resultState.z, 0x7FFFFFFF,
+            "Changed to highest possible value (underflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
 
@@ -401,7 +404,8 @@ test "FunctionCode 12: X-Y->Z, overflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x80000000, "Changed to least possible value (overflow)")
+  equal( resultState.z, 0x80000000,
+            "Changed to least possible value (overflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x5, "Indicates positive + overflow" )
 
@@ -414,7 +418,8 @@ test "FunctionCode 12: X-Y->Z, underflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x7FFFFFFF, "Changed to highest possible value (underflow)")
+  equal( resultState.z, 0x7FFFFFFF,
+            "Changed to highest possible value (underflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
 
@@ -507,7 +512,8 @@ test "FunctionCode 14: X/Y->Z when Y = 0", ->
   equal( resultState.y, oldState.y, "No change in Y Register" )
   equal( resultState.z, oldState.z, "No change in Z Register")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, Utils.setBit(oldState.ccFlags, 1), "Overflow bit set" )
+  equal( resultState.ccFlags, Utils.setBit(oldState.ccFlags, 1),
+            "Overflow bit set" )
 
 test "FunctionCode 15: X%Y->Z", ->
   alu.setFunctionCode 15
@@ -533,7 +539,8 @@ test "FunctionCode 15: X%Y->Z when Y = 0", ->
   equal( resultState.y, oldState.y, "No change in Y Register" )
   equal( resultState.z, oldState.z, "No change in Z Register")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
-  equal( resultState.ccFlags, Utils.setBit(oldState.ccFlags, 1), "Overflow bit set" )
+  equal( resultState.ccFlags, Utils.setBit(oldState.ccFlags, 1),
+            "Overflow bit set" )
 
 test "FunctionCode 16: X SAL Y->Z", ->
   alu.setFunctionCode 16
@@ -583,7 +590,8 @@ test "FunctionCode 18: CMP arithm. X Y->Z, overflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x80000000, "Changed to least possible value (overflow)")
+  equal( resultState.z, 0x80000000,
+            "Changed to least possible value (overflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x5, "Indicates positive + overflow" )
 
@@ -596,7 +604,8 @@ test "FunctionCode 18: CMP arithm. X Y->Z, underflow", ->
   resultState = alu.getState()
   equal( resultState.x, oldState.x, "No change in X Register" )
   equal( resultState.y, oldState.y, "No change in Y Register" )
-  equal( resultState.z, 0x7FFFFFFF, "Changed to highest possible value (underflow)")
+  equal( resultState.z, 0x7FFFFFFF,
+            "Changed to highest possible value (underflow)")
   equal( resultState.cc, oldState.cc, "No change in CC Register" )
   equal( resultState.ccFlags, 0x3, "Indicates negative + overflow" )
 
@@ -799,7 +808,7 @@ test "FunctionCode 48-63: FC-48->Y, Y->Z", ->
     alu.compute()
     resultState = alu.getState()
     ccval = if fc is 48 then 0x8 else 0x4
-    
+
     equal( resultState.x, oldState.x, "No change in X Register" )
     equal( resultState.y, fc - 48, "Changed to fc - 32" )
     equal( resultState.z, fc - 48, "Changed to fc - 32" )
