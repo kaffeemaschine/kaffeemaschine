@@ -64,7 +64,7 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: '<config:project.coffee_src>',
+      files: ['src/**/*', 'site/**/*'],
       tasks: 'build:site:nomin'
     }
   });
