@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     project: {
       coffee_src: 'src/**/*.coffee',
       site_src: ['site/**/*.html', 'site/**/*.css'],
-      lib: ['src/lib/*.js', 'site/lib/*.js'],
+      lib: ['src/lib/*.js', 'site/lib/jquery.js', 'site/lib/bootstrap.js'],
       build_dir: "build/"
     },
     concat: {
