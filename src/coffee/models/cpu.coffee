@@ -250,4 +250,6 @@ class @Cpu
     @mac.reset()
     @ram.reset()
     @rom.reset()
+    for register in [0..7]
+      @setRegister register, (Utils.randomBitSequence 32)
     @setMicrocode (@rom.getMicrocode 0)
