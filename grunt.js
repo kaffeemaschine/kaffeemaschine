@@ -6,6 +6,7 @@ module.exports = function(grunt) {
     project: {
       coffee_src: 'src/**/*.coffee',
       site_src: ['site/**/*.html', 'site/**/*.css'],
+      test_src: ['test/**/*.coffee'],
       lib: ['src/lib/*.js', 'site/lib/jquery.js', 'site/lib/bootstrap.js'],
       build_dir: "build/"
     },
@@ -61,117 +62,143 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['src/**/*', 'site/**/*'],
-      tasks: 'build:site:nomin'
-    }
+      tasks: 'build:nomin:nolint'
+    },
   });
 
-grunt.registerTask('bundle', 'concat:lib concat:main_earlyfiles concat:main_latefiles concat:all');
+  grunt.registerTask('bundle', 'concat:lib concat:main_earlyfiles concat:main_latefiles concat:all');
 
-grunt.registerTask('build:coffee', 'Compile coffeescript to javascript.',
-  function() {
-    var files = grunt.file.expandFiles(grunt.config("project.coffee_src"));
-    var target_dir = grunt.config('project.build_dir') + 'javascript/';
+  grunt.registerTask('compile', 'Compile coffee-script to javascript.',
+    function() {
+      var files = grunt.file.expandFiles(grunt.config("project.coffee_src"));
+      var target_dir = grunt.config('project.build_dir') + 'javascript/';
 
-    var coffee = require('coffee-script');
-    files.forEach(function(filepath) {
-        // strip src from each filepath
-        var relative_path = filepath.replace(/^src\//,'');
-        // replace extension .coffee with .js
-        relative_path = relative_path.replace(/\.coffee$/, '.js');
+      var coffee = require('coffee-script');
+      files.forEach(function(filepath) {
+          // strip src from each filepath
+          var relative_path = filepath.replace(/^src\//,'');
+          // replace extension .coffee with .js
+          relative_path = relative_path.replace(/\.coffee$/, '.js');
 
-        var target_path = target_dir + relative_path;
+          var target_path = target_dir + relative_path;
+          try {
+            grunt.log.write("Compile " + filepath + " to "
+                                          + target_path + "... ");
+            var js = coffee.compile(grunt.file.read(filepath));
+          } catch(e) {
+            grunt.log.writeln("Error: " + e);
+            throw e;
+          }
+          if (js) {
+            grunt.file.write(target_path, js);
+            grunt.log.writeln("Success");
+          }
+      });
+    });
+
+  grunt.registerTask('build', 'Build project', function() {
+    // delete bundle files since they have to be regenerated
+    grunt.task.run('clean:bundle');
+    // compile coffee-script
+    grunt.task.run('compile');
+    // bundle everything
+    grunt.task.run('bundle');
+    // minification disabled?
+    if (this.flags.nomin == null) { grunt.task.run('min') };
+    // build site
+    grunt.task.run('_build:site');
+    // coffeelint disabled?
+    if (this.flags.nolint == null) { grunt.task.run('lint'); }
+  });
+
+  grunt.registerTask('_build:site', 'Generate html site.',
+    function() {
+      this.requires('clean:bundle compile bundle');
+
+      var build_dir = grunt.config('project.build_dir');
+      var files = grunt.file.expandFiles(grunt.config("project.site_src"));
+
+      // copy html + css files
+      var copy = function(src, dest) {
+        grunt.log.write('Copy ' + src + ' to ' + dest + '... ');
         try {
-          grunt.log.write("Compile " + filepath + " to "
-                                        + target_path + "... ");
-          var js = coffee.compile(grunt.file.read(filepath));
+          grunt.file.copy(src, dest);
+          grunt.log.writeln('Success');
         } catch(e) {
-          grunt.log.writeln("Error: " + e);
+          grunt.log.writeln('Error: ' + e);
           throw e;
         }
-        if (js) {
-          grunt.file.write(target_path, js);
-          grunt.log.writeln("Success");
-        }
-    });
-  });
-
-var build_site_requirements = 'clean:bundle build:coffee bundle';
-grunt.registerTask('build-site', 'Generate html site.',
-  function() {
-    this.requires(build_site_requirements);
-
-    var build_dir = grunt.config('project.build_dir');
-    var files = grunt.file.expandFiles(grunt.config("project.site_src"));
-
-
-    // copy html + css files
-    var copy = function(src, dest) {
-      grunt.log.write('Copy ' + src + ' to ' + dest + '... ');
-      try {
-        grunt.file.copy(src, dest);
-        grunt.log.writeln('Success');
-      } catch(e) {
-        grunt.log.writeln('Error: ' + e);
-        throw e;
       }
+
+      files.forEach(function(filepath) {
+        var target_path = build_dir + filepath;
+        copy(filepath, target_path);
+      });
+
+      var srcpath = build_dir + 'javascript/kaffeemaschine_all.js';
+      if (this.flags.min) {
+         srcpath += '.min';
+      }
+
+      copy(srcpath, build_dir + 'site/lib/kaffeemaschine_all.js');
+  });
+
+  grunt.registerTask('lint', 'Execute coffeelint on all src- and test-files.',
+    function() {
+      // node.js child_process is async, so this task needs to be async
+      var done = this.async();
+
+      var srcfiles = grunt.file.expandFiles(grunt.config("project.coffee_src"));
+      var testfiles = grunt.file.expandFiles(grunt.config("project.test_src"));
+      var allfiles = srcfiles.concat(testfiles).join(" ");
+
+      child = require('child_process');
+      child.exec('coffeelint ' + allfiles, function(error, stdout, stderr) {
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+        (error == null) ? done() : done(false);
+      });
+  });
+
+  grunt.registerHelper('rm', function(target) {
+    grunt.log.write('Delete ' + target + '... ');
+    try {
+      if (fs.existsSync(target) === false) {
+        grunt.log.writeln('Does not exist');
+        return;
+      } else if (fs.statSync(target).isFile()) {
+        fs.unlinkSync(target);
+      } else {
+        fs.rmdirSync(target);
+      }
+      grunt.log.writeln('Success');
+    } catch(e) {
+      grunt.log.writeln('Error: ' + e);
+      throw e;
     }
+  });
 
-    files.forEach(function(filepath) {
-      var target_path = build_dir + filepath;
-      copy(filepath, target_path);
-    });
+  grunt.registerTask('clean', 'Delete temporary files.', function() {
+    var build_dir = grunt.config('project.build_dir');
+    var targets;
 
-    var srcpath = build_dir + 'javascript/kaffeemaschine_all.js';
-    if (this.flags.min) {
-       srcpath += '.min';
-    }
-
-    copy(srcpath, build_dir + 'site/lib/kaffeemaschine_all.js');
-});
-
-grunt.registerTask('build:site', build_site_requirements + ' min build-site:min');
-grunt.registerTask('build:site:nomin', build_site_requirements + ' build-site');
-
-grunt.registerHelper('rm', function(target) {
-  grunt.log.write('Delete ' + target + '... ');
-  try {
-    if(fs.statSync(target).isFile()) {
-      fs.unlinkSync(target);
+    if (this.flags.bundle) {
+      // delete only bundle files
+      var prefix = grunt.config('project.build_dir') + 'javascript/';
+      targets = [ prefix + 'kaffeemaschine_all.js',
+                prefix  + 'kaffeemaschine_all.js.min'
+              ]
     } else {
-      fs.rmdirSync(target);
+      // delete all build files
+      var files = grunt.file.expandFiles(build_dir + '**/*');
+      var dirs = grunt.file.expandDirs(build_dir + '**/*').reverse();
+      targets = files.concat(dirs);
     }
-    grunt.log.writeln('Success');
-  } catch(e) {
-    grunt.log.writeln('Error: ' + e);
-    throw e;
-  }
-});
 
-grunt.registerTask('clean', 'Delete all temporary files.', function() {
-  var build_dir = grunt.config('project.build_dir');
-
-  var files = grunt.file.expandFiles(build_dir + '**/*');
-  files.forEach(function(filepath) {
-    grunt.task.helper('rm', filepath);
+    targets.forEach(function(target) {
+      grunt.task.helper('rm', target)
+    });
   });
 
-  var dirs = grunt.file.expandDirs(build_dir + '**/*');
-  dirs.reverse().forEach(function(dirpath) {
-    grunt.task.helper('rm', dirpath);
-  });
-
-  grunt.task.helper('rm', build_dir);
-});
-
-grunt.registerTask('clean:bundle', 'Delete all bundle files.', function() {
-  bundle_files = ['kaffeemaschine_all.js', 'kaffeemaschine_all.js.min'];
-  bundle_files.forEach(function(bundle) {
-    target = grunt.config('project.build_dir') + 'javascript/' + bundle;
-    if (fs.existsSync(target)) {
-      grunt.task.helper('rm', target);
-    }
-  });
-});
-
-  grunt.registerTask('default', 'build:site');
+  grunt.registerTask('default', 'build');
 };
