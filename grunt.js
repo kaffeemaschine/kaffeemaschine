@@ -21,15 +21,17 @@ module.exports = function(grunt) {
               '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/coffee/util/**/*.js" %>',
               '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/coffee/models/**/*.js" %>',
+                          + '+ "javascript/coffee/listeners/**/*.js" %>',
               '<%= grunt.config("project.build_dir")'
-                          + '+ "javascript/coffee/listener/**/*.js" %>'
+                          + '+ "javascript/coffee/models/**/*.js" %>',
               ],
         dest: '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/main_earlyfiles_all.js" %>'
       },
       main_latefiles: {
         src: ['<%= grunt.config("project.build_dir")'
+                          + '+ "javascript/coffee/controllers/**/*.js" %>',
+              '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/coffee/ui/**/*.js" %>',
               '<%= grunt.config("project.build_dir")'
                           + '+ "javascript/coffee/main.js" %>',
