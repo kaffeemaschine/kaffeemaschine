@@ -214,11 +214,11 @@ class @CpuController
         @log.error -> "unknown compute target: #{target}"
 
   highlightElement: (id) ->
-    unless $("id").hasClass("success")
-              $("id").addClass("success")
+    unless $(id).hasClass("success")
+              $(id).addClass("success")
 
   unhighlighElement: (id) ->
-    $("id").removeClass("success")
+    $(id).removeClass("success")
 
   setNextPhase: ->
     @nextPhase = (@nextPhase + 1) % 3
