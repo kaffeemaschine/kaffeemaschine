@@ -28,6 +28,15 @@ class @Cpu
     @cpuListeners = l
 
   setMicrocode: (code) ->
+    @log.debug -> "setting microcode to\n
+                   mode: #{code.mode}\n
+                   mcnext: #{code.mcnext}\n
+                   alufc: #{code.alufc}\n
+                   xbus: #{code.xbus}\n
+                   ybus: #{code.ybus}\n
+                   zbus: #{code.zbus}\n
+                   ioswitch: #{code.ioswitch}\n
+                   byte: #{code.byte}\n"
     @microcode = code
     #update ram mode and ram format
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
