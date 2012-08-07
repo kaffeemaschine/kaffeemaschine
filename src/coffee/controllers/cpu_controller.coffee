@@ -42,22 +42,22 @@ class @CpuController
     @preview()
 
   clearPreview: ->
-    $("#rom-mcar-pv").removeClass("success")
-    $("#mac-mcn-pv").removeClass("success")
-    $("#mac-mcar-pv").removeClass("success")
-    $("#mac-nextmc-pv").removeClass("success")
-    $("#mac-mcop-pv").removeClass("success")
-    $("#mac-mask-pv").removeClass("success")
-    $("#mac-cc-pv").removeClass("success")
-    $("#ram-mar-pv").removeClass("success")
-    $("#ramc-mdr-pv").removeClass("success")
+    @unhighlighElement "#rom-mcar-pv"
+    @unhighlighElement "#mac-mcn-pv"
+    @unhighlighElement "#mac-mcar-pv"
+    @unhighlighElement "#mac-nextmc-pv"
+    @unhighlighElement "#mac-mcop-pv"
+    @unhighlighElement "#mac-mask-pv"
+    @unhighlighElement "#mac-cc-pv"
+    @unhighlighElement "#ram-mar-pv"
+    @unhighlighElement "#ramc-mdr-pv"
     for register in [0..7]
-      $("#registers-r#{register}-pv").removeClass("success")
-    $("#alu-x-pv").removeClass("success")
-    $("#alu-y-pv").removeClass("success")
-    $("#alu-z-pv").removeClass("success")
-    $("#alu-cc-pv").removeClass("success")
-    $("#cc-cc-pv").removeClass("success")
+      @unhighlighElement "#registers-r#{register}-pv"
+    @unhighlighElement "#alu-x-pv"
+    @unhighlighElement "#alu-y-pv"
+    @unhighlighElement "#alu-z-pv"
+    @unhighlighElement "#alu-cc-pv"
+    @unhighlighElement "#cc-cc-pv"
 
   preview: ->
     @clearPreview()
@@ -95,40 +95,33 @@ class @CpuController
     switch fromDomain
       when "registers"
         @log.debug -> "adding registers-r#{fromRegister}-pv"
-        unless $("#registers-r#{fromRegister}-pv").hasClass("success")
-          $("#registers-r#{fromRegister}-pv").addClass("success")
+        @highlightElement "#registers-r#{fromRegister}-pv"
       when "ram"
         switch fromRegister
           when "MAR"
             @log.debug -> "adding ram-mar-pv"
-            unless $("#ram-mar-pv").hasClass("success")
-              $("#ram-mar-pv").addClass("success")
+            @highlightElement "#ram-mar-pv"
           when "MDR"
             @log.debug -> "adding ram-mdr-pv"
-            unless $("#ram-mdr-pv").hasClass("success")
-              $("#ram-mdr-pv").addClass("success")
+            @highlightElement "#ram-mdr-pv"
       when "rom"
         switch fromRegister
           when "MCAR"
             @log.debug -> "adding rom-mcar-pv"
-            unless $("#rom-mcar-pv").hasClass("success")
-              $("#rom-mcar-pv").addClass("success")
+            @highlightElement "#rom-mcar-pv"
       when "mac"
         switch fromRegister
           when "MCARNEXT"
             @log.debug -> "adding mac-nextmcar-pv"
-            unless $("#mac-nextmcar-pv").hasClass("success")
-              $("#mac-nextmcar-pv").addClass("success")
+            @highlightElement "#mac-nextmcar-pv"
       when "alu"
         switch fromRegister
           when "Z"
             @log.debug -> "adding alu-z-pv"
-            unless $("#alu-z-pv").hasClass("success")
-              $("#alu-z-pv").addClass("success")
+            @highlightElement "#alu-z-pv"
           when "CC"
             @log.debug -> "adding alu-cc-pv"
-            unless $("#alu-cc-pv").hasClass("success")
-              $("#alu-cc-pv").addClass("success")
+            @highlightElement "#alu-cc-pv"
     
     if @previewSetTarget(to) is true
       @log.debug -> "...push ok"
@@ -149,42 +142,35 @@ class @CpuController
     switch toDomain
       when "registers"
         @log.debug => "to R#{parseInt toRegister}"
-        unless $("#registers-r#{toRegister}-pv").hasClass("success")
-          $("#registers-r#{toRegister}-pv").addClass("success")
+        @highlightElement "#registers-r#{toRegister}-pv"
       when "ram"
         switch toRegister
           when "MAR"
             @log.debug -> "to ram.MAR"
-            unless $("#ram-mar-pv").hasClass("success")
-              $("#ram-mar-pv").addClass("success")
+            @highlightElement "#ram-mar-pv"
           when "MDR"
             @log.debug -> "to ram.MDR"
-            unless $("#ram-mdr-pv").hasClass("success")
-              $("#ram-mdr-pv").addClass("success")
+            @highlightElement "#ram-mdr-pv"
           else
             targetError = true
       when "rom"
         switch toRegister
           when "MCAR"
             @log.debug -> "to rom.MCAR"
-            unless $("#rom-mcar-pv").hasClass("success")
-              $("#rom-mcar-pv").addClass("success")
+            @highlightElement "#rom-mcar-pv"
           else
             targetError = true
       when "alu"
         switch toRegister
           when "X"
             @log.debug -> "to alu.X"
-            unless $("#alu-x-pv").hasClass("success")
-              $("#alu-x-pv").addClass("success")
+            @highlightElement "#alu-x-pv"
           when "Y"
             @log.debug -> "to alu.Y"
-            unless $("#alu-y-pv").hasClass("success")
-              $("#alu-y-pv").addClass("success")
+            @highlightElement "#alu-y-pv"
           when "Z"
             @log.debug -> "to alu.Z"
-            unless $("#alu-z-pv").hasClass("success")
-              $("#alu-z-pv").addClass("success")
+            @highlightElement "#alu-z-pv"
           when "FC"
             @log.debug -> "to alu.FC"
 
@@ -194,27 +180,22 @@ class @CpuController
         switch toRegister
           when "MCOP"
             @log.debug -> "to mac.MCOP"
-            unless $("#mac-mcop-pv").hasClass("success")
-              $("#mac-mcop-pv").addClass("success")
+            @highlightElement "#mac-mcop-pv"
           when "MCAR"
             @log.debug -> "to mac.MCAR"
-            unless $("#mac-mcar-pv").hasClass("success")
-              $("#mac-mcar-pv").addClass("success")
+            @highlightElement "#mac-mcar-pv"
           when "mode"
             @log.debug -> "to mac.mode"
 
           when "MCN"
             @log.debug -> "to mac.MCN"
-            unless $("#mac-mcn-pv").hasClass("success")
-              $("#mac-mcn-pv").addClass("success")
+            @highlightElement "#mac-mcn-pv"
           when "MASK"
             @log.debug -> "to mac.MASK"
-            unless $("#mac-mask-pv").hasClass("success")
-              $("#mac-mask-pv").addClass("success")
+            @highlightElement "#mac-mask-pv"
           when "CC"
             @log.debug => "to mac.CC"
-            unless $("#mac-cc-pv").hasClass("success")
-              $("#mac-cc-pv").addClass("success")
+            @highlightElement "#mac-cc-pv"
           else
             targetError = true
       else
@@ -231,6 +212,13 @@ class @CpuController
         @log.debug -> "preview running mac"
       else
         @log.error -> "unknown compute target: #{target}"
+
+  highlightElement: (id) ->
+    unless $("id").hasClass("success")
+              $("id").addClass("success")
+
+  unhighlighElement: (id) ->
+    $("id").removeClass("success")
 
   setNextPhase: ->
     @nextPhase = (@nextPhase + 1) % 3
