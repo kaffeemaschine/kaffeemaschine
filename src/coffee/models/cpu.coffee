@@ -34,6 +34,7 @@ class @Cpu
     @ram.setFormat(@microcode.byte)
     #update alu function code
     @alu.setFunctionCode(@microcode.alufc)
+    @notifyMicrocode(@microcode)
 
   setRegister: (register, value) ->
     @registers[register] = value
@@ -243,6 +244,9 @@ class @Cpu
 
   notifySetRegister: (register, value) ->
     listener.onSetRegister?(register, value) for listener in @cpuListeners
+
+  notifyMicrocode: (mc) ->
+    listener.onSetMicrocode?(mc) for listener in @cpuListeners
 
   # resets alu and mac
   reset: ->

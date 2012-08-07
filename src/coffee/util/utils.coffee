@@ -76,3 +76,8 @@ class @Utils
       @prefixLogging(log.error, invoker, callback) if log.isErrorEnabled()
     fatal: (invoker, callback) ->
       @prefixLogging(log.fatal, invoker, callback) if log.isFatalEnabled()
+
+  @decToHex: (decimal, chars) ->
+    (decimal + Math.pow(16, chars)).toString(16).slice(-chars).toUpperCase()
+  @decToBin: (decimal, chars) ->
+    (decimal + Math.pow(2, chars)).toString(2).slice(-chars)
