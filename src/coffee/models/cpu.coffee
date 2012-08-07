@@ -54,124 +54,182 @@ class @Cpu
   # get phase
   runGetPhase: ->
     @log.info -> "running get phase"
-    @setMDRFromRam()
-    @setXFromReg()
-    @setYFromReg()
-    @setYFromMDR()
-    @setMCOPFromMDR()
-    @setMode()
-    @setMCN()
-    @setMask()
-    @setAluFC()
-    @setMCAR()
-
+    actions = MicrocodeParser.parseGetPhase @microcode
+    @performAction action for action in actions
     @setNextPhase()
 
-  #read from ram? (when [46,47] = 01)
-  setMDRFromRam: ->
-    if Utils.extractNum(@microcode.ioswitch, 1, 2) is 1
-      @ram.read()
-  # set X in alu from R0-R7
-  setXFromReg: ->
-    toXFrom = Utils.getLowestBitSet @microcode.xbus, 1, 8
-    toXFrom = 8-toXFrom if toXFrom?
-    @log.debug -> "toXFrom = #{toXFrom}"
-    if toXFrom?
-      @alu.setXRegister @registers[toXFrom]
-      @notifySignal("X", toXFrom)
-  # set Y in alu from R0-R7
-  setYFromReg: ->
-    toYFrom = Utils.getLowestBitSet @microcode.ybus, 1, 8
-    toYFrom = 8-toYFrom if toYFrom?
-    if toYFrom?
-      @alu.setYRegister @registers[toYFrom]
-      @notifySignal("Y", toYFrom)
-  # set Y in alu from RAM
-  setYFromMDR: ->
-    if Utils.isBitSet(@microcode.ioswitch, 5) is on
-      @alu.setYRegister @ram.getMdr()
-      @notifySignal("Y", "MDR")
-  setMCOPFromMDR: ->
-    # gui says this happens in phase 3, doc says phase 1, program says phase 1
-    if Utils.isBitSet(@microcode.ioswitch, 4) is on
-      @mac.setMcop Utils.extractNum(@ram.getMdr(), 1, 8)
-      @notifySignal("MCOP", "MDR")
-  setMode: ->
-    @mac.setMode(@microcode.mode)
-    @notifySignal("MODE", "MICROCODE")
-  setMCN: ->
-    @mac.setMcn(@microcode.mcnext)
-    @notifySignal("MCN", "MICROCODE")
-  setMask: ->
-    @mac.setMask(Utils.extractNum(@microcode.mcnext, 1, 4))
-    @notifySignal("MASK", "MICROCODE")
-  setAluFC: ->
-    @log.debug @, -> "setting alufc #{@microcode.alufc}"
-    @alu.setFunctionCode @microcode.alufc
-    @notifySignal("FC", "MICROCODE")
-  setMCAR: ->
-    @mac.setMcar @rom.getMcar()
-    @notifySignal("MACMCAR", "ROMMCAR")
-
+  # calc phase
   runCalcPhase: ->
     @log.info -> "running calc phase"
-    # run alu with given opcode
-    @alu.compute()
-    # set mac cc register
-    @mac.setCC(@alu.getCCRegister())
-    # compute mcar next
-    @mac.compute()
+    actions = MicrocodeParser.parseCalcPhase @microcode
+    @performAction action for action in actions
     @setNextPhase()
 
+  # put phase
   runPutPhase: ->
     @log.info -> "running put phase"
-    @setMarFromZ()
-    @setMdrFromZ()
-    @setZFromMdr()
-    @setZFromMar()
-    @setRamFromMdr()
-    @setRegistersFromZ()
-    @getNextMicrocode()
-
-
+    actions = MicrocodeParser.parsePutPhase @microcode
+    @performAction action for action in actions
     @setNextPhase()
 
-  setMarFromZ: ->
-    if Utils.isBitSet(@microcode.ioswitch, 8) is on
+  performAction: (a) ->
+    @log.debug -> "performing action=#{a}"
+    [action, rest...] = a.split " "
 
-      @ram.setMar(@alu.getZRegister())
-      @notifySignal("MAR", "Z")
+    switch action
+      when "compute"
+        @log.debug -> "compute..."
+        [target] = rest
+        @performCompute target
+      when "push"
+        @log.debug -> "push..."
+        [to, from] = rest
+        @performPush to, from
+      when "pushval"
+        @log.debug -> "pushval..."
+        [to, value] = rest
+        @performPushVal to, value
+      when "next"
+        @log.debug -> "fetching next microcode"
+        @setMicrocode(@rom.read())
+      else
+        @log.error -> "unknown command: #{action}"
+        
 
-  setMdrFromZ: ->
-    if Utils.isBitSet(@microcode.ioswitch, 7) is on
-      @ram.setMdr(@alu.getZRegister())
-      @notifySignal("MDR", "Z")
+  performPush: (to, from) ->
+    [fromDomain, fromRegister] = from.split "."
+    switch fromDomain
+      when "registers"
+        value = @registers[parseInt fromRegister]
+        @log.debug => "from R#{fromRegister} = #{value}"
+      when "ram"
+        switch fromRegister
+          when "MAR"
+            value = @ram.getMar()
+            @log.debug => "from ram.MAR = #{value}"
+          when "MDR"
+            value = @ram.getMdr()
+            @log.debug => "from ram.MDR = #{value}"
+      when "rom"
+        switch fromRegister
+          when "MCAR"
+            value = @rom.getMcar()
+            @log.debug => "from rom.MCAR = #{value}"
+      when "mac"
+        switch fromRegister
+          when "MCARNEXT"
+            value = @mac.getMcarNext()
+            @log.debug => "from mac.MCARNEXT = #{value}"
+      when "alu"
+        switch fromRegister
+          when "Z"
+            value = @alu.getZRegister()
+            @log.debug => "from alu.Z = #{value}"
+          when "CC"
+            value = @alu.getCCRegister()
+            @log.debug => "from alu.CC = #{value}"
 
-  setZFromMdr: ->
-    if Utils.isBitSet(@microcode.ioswitch, 6) is on
-      @alu.setZRegister(@ram.getMdr())
-      @notifySignal("Z", "MDR")
+    if value is undefined
+      @log.error -> "unknown push source: #{from}"
+      @log.debug -> "...push failed"
+      return
+    
+    if @setTarget(to, value) is true
+      @log.debug -> "notify push signal"
+      @notifySignal(to, from)
+      @log.debug -> "...push ok"
+    else
+      @log.error -> "unknown push target: #{to}"
+      @log.debug -> "...push failed"
 
-  setZFromMar: ->
-    if Utils.isBitSet(@microcode.ioswitch, 3) is on
-      @alu.setZRegister(@ram.getMar())
-      @notifySignal("Z", "MAR")
+  performPushVal: (to, value) ->
+    if @setTarget(to, parseInt value) is true
+      @log.debug -> "notify pushval signal"
+      @notifySignal(to, "MICROCODE")
+      @log.debug -> "...pushval ok"
+    else
+      @log.error -> "unknown pushval target: #{to}"
+      @log.debug -> "...pushval failed"
 
-  setRamFromMdr: ->
-    @log.debug @, -> "num is #{Utils.extractNum(@microcode.ioswitch, 1, 2)}"
-    if Utils.extractNum(@microcode.ioswitch, 1, 2) is 2
-      @log.debug -> "doing it!"
-      @ram.write()
-
-  setRegistersFromZ: ->
-    for bit in [1..8]
-      if Utils.isBitSet(@microcode.zbus, bit) is on
-        @setRegister(8-bit, @alu.getZRegister())
-        @notifySignal(8-bit, "Z")
-
-  getNextMicrocode: ->
-    @rom.setMcar(@mac.mcarNextRegister)
-    @setMicrocode(@rom.read())
+  setTarget: (target, value) ->
+    [toDomain, toRegister] = target.split "."
+    targetError = false
+    switch toDomain
+      when "registers"
+        @log.debug => "to R#{parseInt toRegister}"
+        @registers[parseInt toRegister] = value        
+      when "ram"
+        switch toRegister
+          when "MAR"
+            @log.debug -> "to ram.MAR"
+            @ram.setMar value
+          when "MDR"
+            @log.debug -> "to ram.MDR"
+            @ram.setMdr value
+          else
+            targetError = true
+      when "rom"
+        switch toRegister
+          when "MCAR"
+            @log.debug -> "to rom.MCAR"
+            @rom.setMcar value
+          else
+            targetError = true
+      when "alu"
+        switch toRegister
+          when "X"
+            @log.debug -> "to alu.X"
+            @alu.setXRegister value
+          when "Y"
+            @log.debug -> "to alu.Y"
+            @alu.setYRegister value
+          when "Z"
+            @log.debug -> "to alu.Z"
+            @alu.setZRegister value
+          when "FC"
+            @log.debug -> "to alu.FC"
+            @alu.setFunctionCode value
+          else
+            targetError = true
+      when "mac"
+        switch toRegister
+          when "MCOP"
+            @log.debug -> "to mac.MCOP"
+            @mac.setMcop value
+          when "MCAR"
+            @log.debug -> "to mac.MCAR"
+            @mac.setMcar value
+          when "mode"
+            @log.debug -> "to mac.mode"
+            @mac.setMode value
+          when "MCN"
+            @log.debug -> "to mac.MCN"
+            @mac.setMcn value
+          when "MASK"
+            @log.debug -> "to mac.MASK"
+            @mac.setMask value
+          when "CC"
+            @log.debug => "to mac.CC"
+            @mac.setCC value
+          else
+            targetError = true
+      else
+        targetError = true
+    return not targetError
+    
+  performCompute: (target) ->
+    switch target
+      when "ram"
+        @log.debug -> "running ram"
+        @ram.compute()
+      when "alu"
+        @log.debug -> "running alu"
+        @alu.compute()
+      when "mac"
+        @log.debug -> "running mac"
+        @mac.compute()
+      else
+        @log.error -> "unknown compute target: #{target}"
 
   setNextPhase: ->
     @nextPhase = (@nextPhase + 1) % 3

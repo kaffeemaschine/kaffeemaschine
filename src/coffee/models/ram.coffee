@@ -45,6 +45,16 @@ class @Ram
   getMar: ->
     @mar
 
+  compute: ->
+    @log.debug => "ram mode is"
+    switch @mode
+      when 1
+        @log.debug -> "ram is reading..."
+        @read();
+      when 2
+        @log.debug -> "ram is writing..."
+        @write();
+
   read: ->
     mem = 0
     switch @format

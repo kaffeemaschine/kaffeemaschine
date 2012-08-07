@@ -1,41 +1,46 @@
 class @Mac
   constructor: (@macListeners = []) ->
+    @log = Utils.getLogger "MAC"
     @reset()
 
   setMacListeners: (l) ->
     @macListeners = l
 
+  getMcarNext: ->
+    @mcarNextRegister
+
   setMode: (val) ->
-    @mode = val
-    @notifySetMode(val)
+    @log.debug -> "val=#{val}, mode=#{(val & 0x3) >>> 0}"
+    @mode = (val & 0x3) >>> 0
+    @notifySetMode(@mode)
 
   setCC: (val) ->
-    @ccRegister = val
-    @notifySetCC(val)
+    @ccRegister = (val & 0xF) >>> 0
+    @notifySetCC(@ccRegister)
 
   setMask: (val) ->
-    @maskRegister = val
-    @notifySetMask(val)
+    @maskRegister = (val & 0xF) >>> 0
+    @notifySetMask(@maskRegister)
 
   setTimes4: (val) ->
-    @times4 = val
-    @notifySetTimes4(val)
+    @times4 = (val & 0x1) >>> 0
+    @notifySetTimes4(@times4)
 
   setMcop: (val) ->
-    @mcopRegister = val
-    @notifySetMcop(val)
+    @mcopRegister = (val & 0xFF) >>> 0
+    @notifySetMcop(@mcopRegister)
 
   setMcarNext: (val) ->
-    @mcarNextRegister = val
-    @notifySetMcarNext(val)
+    @mcarNextRegister = (val & 0xFFF) >>> 0
+    @notifySetMcarNext(@mcarNextRegister)
 
   setMcn: (val) ->
-    @mcnRegister = val
-    @notifySetMcn(val)
+    @mcnRegister = (val & 0x3F) >>> 0
+    @notifySetMcn(@mcnRegister)
 
   setMcar: (val) ->
-    @mcarRegister = val
-    @notifySetMcar(val)
+    @mcarRegister = (val & 0xFFF) >>> 0
+    @notifySetMcar(@mcarRegister)
 
   compute: ->
     switch @mode

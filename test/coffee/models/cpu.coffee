@@ -42,6 +42,7 @@ test "GetPhase triggers RAM read if read mode is on", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -53,7 +54,7 @@ test "GetPhase triggers RAM read if read mode is on", ->
     ioswitch: 1
     byte: 0)
   cpu.runGetPhase()
-  verify(mockRam).read()
+  verify(mockRam).compute()
   ok(true)
 
 test "GetPhase doesn't trigger RAM read if read mode is off", ->
@@ -61,6 +62,7 @@ test "GetPhase doesn't trigger RAM read if read mode is off", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -72,7 +74,7 @@ test "GetPhase doesn't trigger RAM read if read mode is off", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockRam, times(0)).read()
+  verify(mockRam, never()).compute()
   ok(true)
 
 test "GetPhase xbus sets X register", ->
@@ -80,6 +82,7 @@ test "GetPhase xbus sets X register", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setRegister(0,1)
   cpu.setRegister(1,2)
@@ -107,6 +110,7 @@ test "GetPhase ybus sets Y register", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setRegister(0,1)
   cpu.setRegister(1,2)
@@ -135,6 +139,7 @@ test "GetPhase ioswitch bit 5 sets Y register", ->
   JsMockito.when(mockRam).getMdr().thenReturn(42)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -155,6 +160,7 @@ test "GetPhase ioswitch bit 5 notifies listeners", ->
   mockListener = mock(CpuListener)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   JsMockito.when(mockRam).getMdr().thenReturn(42)
   cpu.setMicrocode(
@@ -167,7 +173,7 @@ test "GetPhase ioswitch bit 5 notifies listeners", ->
     ioswitch: 16
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("Y", "MDR")
+  verify(mockListener).onSignal("alu.Y", "ram.MDR")
   ok(true)
 
 test "GetPhase xbus notifies listeners", ->
@@ -176,6 +182,7 @@ test "GetPhase xbus notifies listeners", ->
   mockListener = mock(CpuListener)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -187,7 +194,7 @@ test "GetPhase xbus notifies listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("X", 7)
+  verify(mockListener).onSignal("alu.X", "registers.7")
   ok(true)
 
 test "GetPhase ybus notifies listeners", ->
@@ -196,6 +203,7 @@ test "GetPhase ybus notifies listeners", ->
   mockListener = mock(CpuListener)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -207,15 +215,16 @@ test "GetPhase ybus notifies listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("Y", 7)
+  verify(mockListener).onSignal("alu.Y", "registers.7")
   ok(true)
 
 test "GetPhase ioswitch bit 4 sets MCOP register", ->
   mockAlu = mock(Alu)
   mockRam = mock(Ram)
-  JsMockito.when(mockRam).getMdr().thenReturn(32810)
+  JsMockito.when(mockRam).getMdr().thenReturn(3281)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -227,16 +236,17 @@ test "GetPhase ioswitch bit 4 sets MCOP register", ->
     ioswitch: 8
     byte: 0)
   cpu.runGetPhase()
-  verify(mockMac).setMcop(42)
+  verify(mockMac).setMcop(3281)
   ok(true)
 
 test "GetPhase ioswitch bit 4 notifies listeners", ->
   mockAlu = mock(Alu)
   mockRam = mock(Ram)
   mockListener = mock(CpuListener)
-  JsMockito.when(mockRam).getMdr().thenReturn(32810)
+  JsMockito.when(mockRam).getMdr().thenReturn(3281)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -248,7 +258,7 @@ test "GetPhase ioswitch bit 4 notifies listeners", ->
     ioswitch: 8
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("MCOP", "MDR")
+  verify(mockListener).onSignal("mac.MCOP", "ram.MDR")
   ok(true)
 
 test "GetPhase sets MCN register", ->
@@ -256,6 +266,7 @@ test "GetPhase sets MCN register", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -276,6 +287,7 @@ test "GetPhase sets MCN register notifies signal", ->
   mockMac = mock(Mac)
   mockListener = mock(CpuListener)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -287,7 +299,7 @@ test "GetPhase sets MCN register notifies signal", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("MCN", "MICROCODE")
+  verify(mockListener).onSignal("mac.MCN", "MICROCODE")
   ok(true)
 
 test "GetPhase sets MAC's mask register", ->
@@ -295,6 +307,7 @@ test "GetPhase sets MAC's mask register", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -315,6 +328,7 @@ test "GetPhase sets MAC's mask register notifies listeners", ->
   mockListener = mock(CpuListener)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -326,7 +340,7 @@ test "GetPhase sets MAC's mask register notifies listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("MASK", "MICROCODE")
+  verify(mockListener).onSignal("mac.MASK", "MICROCODE")
   ok(true)
 
 test "GetPhase sets MAC's mode register", ->
@@ -334,6 +348,7 @@ test "GetPhase sets MAC's mode register", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 2
@@ -354,6 +369,7 @@ test "GetPhase sets MAC's mode register signals listeners", ->
   mockListener = mock(CpuListener)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 2
@@ -365,7 +381,7 @@ test "GetPhase sets MAC's mode register signals listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("MODE", "MICROCODE")
+  verify(mockListener).onSignal("mac.mode", "MICROCODE")
   ok(true)
 
 test "GetPhase sets ALU's function code", ->
@@ -373,6 +389,7 @@ test "GetPhase sets ALU's function code", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.setMicrocode(
     mode: 0
@@ -393,6 +410,7 @@ test "GetPhase sets ALU's function code signals listeners", ->
   mockMac = mock(Mac)
   mockListener = mock(CpuListener)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.setMicrocode(
     mode: 0
@@ -404,7 +422,7 @@ test "GetPhase sets ALU's function code signals listeners", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockListener).onSignal("FC", "MICROCODE")
+  verify(mockListener).onSignal("alu.FC", "MICROCODE")
   ok(true)
 
 test "CalcPhase calls compute in alu", ->
@@ -412,6 +430,7 @@ test "CalcPhase calls compute in alu", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockAlu).getCCRegister().thenReturn(42)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.runCalcPhase()
   verify(mockAlu).compute()
@@ -433,6 +452,7 @@ test "CalcPhase calls compute in mac", ->
   mockRam = mock(Ram)
   mockMac = mock(Mac)
   mockRom = mock(Rom)
+  JsMockito.when(mockAlu).getCCRegister().thenReturn(42)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom)
   cpu.runCalcPhase()
   verify(mockMac).compute()
@@ -455,9 +475,10 @@ test "GetPhase setMCAR signals listeners", ->
   mockMac = mock(Mac)
   mockListener = mock(CpuListener)
   mockRom = mock(Rom)
+  JsMockito.when(mockRom).getMcar().thenReturn(0)
   cpu = new Cpu(mockAlu, mockRam, mockMac, mockRom, [mockListener])
   cpu.runGetPhase()
-  verify(mockListener).onSignal("MACMCAR", "ROMMCAR")
+  verify(mockListener).onSignal("mac.MCAR", "rom.MCAR")
   ok(true)
 
 test "PutPhase ioswitch bit 8 sets mar", ->
@@ -485,6 +506,7 @@ test "PutPhase ioswitch bit 8 sets mar", ->
     zbus: 0
     ioswitch: 0x80
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   verify(mockRam).setMar(42)
   ok(true)
@@ -514,6 +536,7 @@ test "PutPhase ioswitch bit 7 sets mdr", ->
     zbus: 0
     ioswitch: 0x40
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   verify(mockRam).setMdr(42)
   ok(true)
@@ -543,6 +566,7 @@ test "PutPhase ioswitch bit 6 sets z", ->
     zbus: 0
     ioswitch: 0x20
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   verify(mockAlu).setZRegister(42)
   ok(true)
@@ -572,6 +596,7 @@ test "PutPhase ioswitch bit 3 sets z", ->
     zbus: 0
     ioswitch: 0x4
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   verify(mockAlu).setZRegister(42)
   ok(true)
@@ -601,11 +626,14 @@ test "PutPhase ioswitch bit 1,2 = 2 triggers write", ->
     zbus: 0
     ioswitch: 0x2
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
-  verify(mockRam).write()
+  verify(mockRam).compute()
   ok(true)
 
 test "PutPhase zbus sets registers", ->
+  @log = Utils.getLogger "CPUTEST"
+  @log.debug -> "start zbus"
   mockAlu = mock(Alu)
   mockRam = mock(Ram)
   mockMac = mock(Mac)
@@ -630,6 +658,7 @@ test "PutPhase zbus sets registers", ->
     zbus: 0xFF
     ioswitch: 0x2
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   deepEqual(cpu.registers, [42,42,42,42,42,42,42,42], "all should be 42")
 
@@ -658,11 +687,14 @@ test "PutPhase retrieves next microcode", ->
     zbus: 0
     ioswitch: 0
     byte: 0)
+  JsMockito.when(mockMac).getMcarNext().thenReturn(1)
   cpu.runPutPhase()
   verify(mockRom).read()
   ok(true)
 
 test "Integration Test: Simple Run", ->
+  @log = Utils.getLogger "CPUTEST"
+  @log.debug -> "start simple run"
   rom = new Rom()
   alu = new Alu()
   ram = new Ram()

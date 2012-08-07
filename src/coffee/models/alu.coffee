@@ -39,12 +39,15 @@ class @Alu
     @notifyFC(@functionCode)
 
   compute: ->
+    @log.debug => "computing functionCode=#{@functionCode}"
     copyCC = Utils.isBitSet(@functionCode, 7)
 
     if Utils.isBitSet(@functionCode, 7)
       fc = Utils.unsetBit(@functionCode, 7)
     else
       fc = @functionCode
+
+    @log.debug => "fc is functionCode=#{fc}"
     switch fc
       # 0: NOP
       # 1: -Z->Z
@@ -111,6 +114,7 @@ class @Alu
           @updateCCFlags()
       # 11: X+Y->Z
       when 11
+        @log.debug => "adding"
         x = if Utils.isNegative(@xRegister) then @xRegister<<0 else @xRegister
         y = if Utils.isNegative(@yRegister) then @yRegister<<0 else @yRegister
         @setZRegister(((x+y) & 0xFFFFFFFF) >>> 0) # >>> to get unsigned value
@@ -249,6 +253,7 @@ class @Alu
       when 31
         @setYRegister(0xFFFFFFFF)
       else
+        @log.debug -> "fc else..."
         # 32-47: FC-32->X, X->Z
         if fc >= 32 and fc < 48
           @setXRegister(fc-32)
