@@ -1,14 +1,14 @@
 class @Cpu
   constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(),
-      @rom = new Rom(), @cpuListeners = [], @aluListeners = [],
-      @ramListeners = [], @macListeners = [], @romListeners = []) ->
+      @rom = new Rom(), @cpuListeners = [], aluListeners = [],
+      ramListeners = [], macListeners = [], romListeners = []) ->
 
     @log = Utils.getLogger 'Cpu'
 
-    @ram.setRamListeners(@ramListeners)
-    @alu.setAluListeners(@aluListeners)
-    @mac.setMacListeners(@macListeners)
-    @rom.setRomListeners(@romListeners)
+    @ram.setRamListeners ramListeners unless ramListeners is []
+    @alu.setAluListeners aluListeners unless aluListeners is []
+    @mac.setMacListeners macListeners unless macListeners is []
+    @rom.setRomListeners romListeners unless romListeners is []
     # RAM technically not part of cpu... go ahead and kill me
     @registers = [0,0,0,0,0,0,0,0]
     @nextPhase = 0
@@ -23,6 +23,7 @@ class @Cpu
       byte: 0
       mnemonic: ""
       remarks: ""
+    @log.debug -> "constructor done"
 
 
   setCpuListeners: (l) ->
