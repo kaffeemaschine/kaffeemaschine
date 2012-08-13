@@ -288,8 +288,8 @@ class @Cpu
       else
         @log.error -> "unknown compute target: #{target}"
 
-  setNextPhase: ->
-    @nextPhase = (@nextPhase + 1) % 3
+  setNextPhase: (val = @nextPhase + 1) ->
+    @nextPhase = val % 3
     @notifyNextPhase(@nextPhase)
 
   notifySignal: (to, from) ->
@@ -306,7 +306,8 @@ class @Cpu
 
   # resets alu and mac
   reset: ->
-    @nextPhase = 0
+    @setNextPhase 0
+
     @alu.reset()
     @mac.reset()
     @ram.reset()
