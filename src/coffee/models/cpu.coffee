@@ -306,6 +306,7 @@ class @Cpu
 
   # resets alu and mac
   reset: ->
+    @nextPhase = 0
     @alu.reset()
     @mac.reset()
     @ram.reset()
