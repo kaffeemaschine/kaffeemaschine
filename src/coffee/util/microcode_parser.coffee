@@ -57,6 +57,8 @@ class @MicrocodeParser
     actions.push "push mac.CC alu.CC"
     # run mac
     actions.push "compute mac"
+    if Utils.isBitSet mc.alufc, 7
+      action.push "info update cc"
     #return calc phase actions
     actions
 

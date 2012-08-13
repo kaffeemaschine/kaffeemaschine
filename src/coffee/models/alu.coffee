@@ -1,9 +1,14 @@
 class @Alu
   constructor: (@aluListeners = []) ->
-    @reset()
     @log = Utils.getLogger "Alu"
+    @log.debug -> "constructor start"
+    @log.debug -> "creating Alu"
+    @reset()
+    @log.debug -> "constructor done"
 
-  setAluListeners: (l) -> @aluListeners = l
+  setAluListeners: (l) ->
+    @log.debug -> "setting alu listeners to #{l}"
+    @aluListeners = l
 
   getXRegister: -> @xRegister
   getYRegister: -> @yRegister
@@ -276,6 +281,7 @@ class @Alu
         @setCCFlags(4)
 
   notifyX: (x) ->
+    @log.debug -> "notify X for  alu listeners #{@aluListeners}"
     listener.onSetX?(x) for listener in @aluListeners
 
   notifyY: (x) ->
@@ -293,12 +299,13 @@ class @Alu
   notifyFC: (x) ->
     listener.onSetFC?(x) for listener in @aluListeners
 
-  reset: () ->
+  reset: ->
+    @log.debug -> "reset alu"
     @setFunctionCode 0
 
     # set register & flags to random values
     @setXRegister(Utils.randomBitSequence 32)
-    @setZRegister(Utils.randomBitSequence 32)
+    @setYRegister(Utils.randomBitSequence 32)
     @setZRegister(Utils.randomBitSequence 32)
     @setCCRegister(Utils.randomBitSequence 4)
     @setCCFlags(Utils.randomBitSequence 4)

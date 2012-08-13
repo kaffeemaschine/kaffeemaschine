@@ -1,14 +1,14 @@
 class @Cpu
   constructor: (@alu = new Alu(), @ram = new Ram(), @mac = new Mac(),
-      @rom = new Rom(), @cpuListeners = [], @aluListeners = [],
-      @ramListeners = [], @macListeners = [], @romListeners = []) ->
+      @rom = new Rom(), @cpuListeners = [], aluListeners = [],
+      ramListeners = [], macListeners = [], romListeners = []) ->
 
     @log = Utils.getLogger 'Cpu'
 
-    @ram.setRamListeners(@ramListeners)
-    @alu.setAluListeners(@aluListeners)
-    @mac.setMacListeners(@macListeners)
-    @rom.setRomListeners(@romListeners)
+    @ram.setRamListeners ramListeners unless ramListeners is []
+    @alu.setAluListeners aluListeners unless aluListeners is []
+    @mac.setMacListeners macListeners unless macListeners is []
+    @rom.setRomListeners romListeners unless romListeners is []
     # RAM technically not part of cpu... go ahead and kill me
     @registers = [0,0,0,0,0,0,0,0]
     @nextPhase = 0
@@ -23,9 +23,48 @@ class @Cpu
       byte: 0
       mnemonic: ""
       remarks: ""
+    @log.debug -> "constructor done"
+
 
   setCpuListeners: (l) ->
     @cpuListeners = l
+
+  setMicrocodeField: (field, value) ->
+    switch field
+      when "mode"
+        @log.debug -> "setting mc.mode to #{value}"
+        @microcode.mode = value
+      when "mcnext"
+        @log.debug -> "setting mc.mcnext to #{value}"
+        @microcode.mcnext = value
+      when "alufc"
+        @log.debug -> "setting mc.alufc to #{value}"
+        @microcode.alufc = value
+      when "xbus"
+        @log.debug -> "setting mc.xbus to #{value}"
+        @microcode.xbus = value
+      when "ybus"
+        @log.debug -> "setting mc.ybus to #{value}"
+        @microcode.ybus = value
+      when "zbus"
+        @log.debug -> "setting mc.zbus to #{value}"
+        @microcode.zbus = value
+      when "ioswitch"
+        @log.debug -> "setting mc.ioswitch to #{value}"
+        @microcode.ioswitch = value
+      when "byte"
+        @log.debug -> "setting mc.byte to #{value}"
+        @microcode.byte = value
+      when "mnemonic"
+        @log.debug -> "setting mc.mnemonic to #{value}"
+        @microcode.mnemonic = value
+      when "remarks"
+        @log.debug -> "setting mc.remarks to #{value}"
+        @microcode.remarks = value
+      else
+        @log.warning -> "unknown field #{field} in setMicrocodeField."
+    @publishMicrocode()
+
 
   setMicrocode: (code) ->
     @log.debug -> "setting microcode to\n
@@ -38,6 +77,9 @@ class @Cpu
                    ioswitch: #{code.ioswitch}\n
                    byte: #{code.byte}\n"
     @microcode = code
+    @publishMicrocode()
+
+  publishMicrocode: ->
     #update ram mode and ram format
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
     @ram.setFormat(@microcode.byte)
@@ -83,8 +125,10 @@ class @Cpu
     @setNextPhase()
 
   performAction: (a) ->
-    @log.debug -> "performing action=#{a}"
+    @log.debug -> "performing action=#{a}" 
     [action, rest...] = a.split " "
+
+    
 
     switch action
       when "compute"
@@ -102,6 +146,9 @@ class @Cpu
       when "next"
         @log.debug -> "fetching next microcode"
         @setMicrocode(@rom.read())
+      when "info"
+        @log.debug -> "info"
+        # do nothing... only info
       else
         @log.error -> "unknown command: #{action}"
         
@@ -241,8 +288,8 @@ class @Cpu
       else
         @log.error -> "unknown compute target: #{target}"
 
-  setNextPhase: ->
-    @nextPhase = (@nextPhase + 1) % 3
+  setNextPhase: (val = @nextPhase + 1) ->
+    @nextPhase = val % 3
     @notifyNextPhase(@nextPhase)
 
   notifySignal: (to, from) ->
@@ -259,6 +306,8 @@ class @Cpu
 
   # resets alu and mac
   reset: ->
+    @setNextPhase 0
+
     @alu.reset()
     @mac.reset()
     @ram.reset()

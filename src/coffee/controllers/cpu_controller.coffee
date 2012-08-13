@@ -1,67 +1,110 @@
-class @CpuController
+class @CpuController extends AbstractController
   constructor: ->
     @log = Utils.getLogger 'CpuController'
 
-    @nextPhase = 0
+    # conductors
+    @cpv = new ConductorPathView()
+
+    alu = new Alu()
+    ram = new Ram()
+    mac = new Mac()
+    rom = new Rom()
+    @cpu = new Cpu(alu, ram, mac, rom)
     
-    # reset button
-    ($ "#power-reset-btn").click =>
-      @cpu.reset()
+    @aluController = new AluController(alu)
 
-    #microcode-xbus
-    # for now... needs better solution for event handling
-    ($ "#microcode-xbus-tf").keyup =>
-      val = parseInt ($ "#microcode-xbus-tf").val(), 2
-      val = (val & 0xFF) >>> 0
-      mc = @cpu.microcode
-      mc.xbus = val
-      @cpu.setMicrocode(mc)
-      @preview()
+    @initListener()    
+    @cpu.setCpuListeners [@cpuListener]
 
-    # init cpu listener
+    @setPowerHandlers()
+    @setMicrocodeInputHandlers() 
+
+    @cpu.reset()
+    @preview()
+
+  initListener: ->
     @log.debug -> "init cpu listener"
     @cpuListener = new CpuListener()
-    @cpuListener.setOnSetRegister( (register, value) ->
-      ($ "#registers-r#{register}-tf").val(Utils.decToHex(value, 8)))
-    @cpuListener.setOnSetMicrocode( (mc) ->
+    @cpuListener.setOnSetRegister (register, value) ->
+      ($ "#registers-r#{register}-tf").val(Utils.decToHex(value, 8))
+    @cpuListener.setOnSetMicrocode (mc) =>
       ($ "#microcode-mode-tf").val(Utils.decToBin(mc.mode, 2))
       ($ "#microcode-mcnext-tf").val(Utils.decToBin(mc.mcnext, 6))
-      ($ "#microcode-alufc-tf").val(Utils.decToBin(mc.alufc, 8))
+      ($ "#microcode-alufc-tf").val(Utils.decToBin(mc.alufc, 7))
       ($ "#microcode-xbus-tf").val(Utils.decToBin(mc.xbus, 8))
       ($ "#microcode-ybus-tf").val(Utils.decToBin(mc.ybus, 8))
       ($ "#microcode-zbus-tf").val(Utils.decToBin(mc.zbus, 8))
       ($ "#microcode-ioswitch-tf").val(Utils.decToBin(mc.ioswitch, 8))
       ($ "#microcode-byte-tf").val(Utils.decToBin(mc.byte, 2))
-      ($ "#info-tarea").val(mc.remarks))
+      ($ "#info-tarea").val(mc.remarks)
+      @preview()
+    @cpuListener.setOnNextPhase (phase) =>
+      @cpv.redraw()
+      @preview()
+      @cpv.resetActive()
+    @cpuListener.setOnSignal (to, from) =>
+      [domain, register] = from.split "."
+      switch to
+        when "alu.X"
+          @cpv.setActiveX (parseInt register), true
+        when "alu.Y"
+          switch domain
+            when "registers"
+              @cpv.setActiveY (parseInt register), true
+            when "ram"
+              @cpv.setActiveY 8, true
 
-    # init cpu
-    @log.debug -> "init cpu"
-    @cpu = new Cpu()
-    @cpu.setCpuListeners [@cpuListener]
-    @cpu.reset()
-    @preview()
+  setPowerHandlers: ->
+    # reset button
+    ($ "#power-reset-btn").click =>
+      @cpu.reset()
+      @cpv.resetActive()
+    # run phase button
+    ($ "#power-phase-btn").click =>
+      @cpu.runPhase()
+    # run tact button
+    ($ "#power-tact-btn").click =>
+      @cpu.runTact()
+
+  setMicrocodeInputHandlers: ->
+    @mkInputHandler "#microcode-mode-tf", 2, 0x3, (value) =>
+      @cpu.setMicrocodeField("mode", value)
+    @mkInputHandler "#microcode-mcnext-tf", 2, 0x3F, (value) =>
+      @cpu.setMicrocodeField("mcnext", value)
+    @mkInputHandler "#microcode-alufc-tf", 2, 0x7F, (value) =>
+      @cpu.setMicrocodeField("alufc", value)
+    @mkInputHandler "#microcode-xbus-tf", 2, 0xFF, (value) =>
+      @cpu.setMicrocodeField("xbus", value)
+    @mkInputHandler "#microcode-ybus-tf", 2, 0xFF, (value) =>
+      @cpu.setMicrocodeField("ybus", value)
+    @mkInputHandler "#microcode-zbus-tf", 2, 0xFF, (value) =>
+      @cpu.setMicrocodeField("zbus", value)
+    @mkInputHandler "#microcode-ioswitch-tf", 2, 0xFF, (value) =>
+      @cpu.setMicrocodeField("ioswitch", value)
+    @mkInputHandler "#microcode-byte-tf", 2, 0x3, (value) =>
+      @cpu.setMicrocodeField("byte", value)
 
   clearPreview: ->
-    @unhighlighElement "#rom-mcar-pv"
-    @unhighlighElement "#mac-mcn-pv"
-    @unhighlighElement "#mac-mcar-pv"
-    @unhighlighElement "#mac-nextmc-pv"
-    @unhighlighElement "#mac-mcop-pv"
-    @unhighlighElement "#mac-mask-pv"
-    @unhighlighElement "#mac-cc-pv"
-    @unhighlighElement "#ram-mar-pv"
-    @unhighlighElement "#ramc-mdr-pv"
+    @unhighlightElement "#rom-mcar-pv"
+    @unhighlightElement "#mac-mcn-pv"
+    @unhighlightElement "#mac-mcar-pv"
+    @unhighlightElement "#mac-nextmc-pv"
+    @unhighlightElement "#mac-mcop-pv"
+    @unhighlightElement "#mac-mask-pv"
+    @unhighlightElement "#mac-cc-pv"
+    @unhighlightElement "#ram-mar-pv"
+    @unhighlightElement "#ram-mdr-pv"
     for register in [0..7]
-      @unhighlighElement "#registers-r#{register}-pv"
-    @unhighlighElement "#alu-x-pv"
-    @unhighlighElement "#alu-y-pv"
-    @unhighlighElement "#alu-z-pv"
-    @unhighlighElement "#alu-cc-pv"
-    @unhighlighElement "#cc-cc-pv"
+      @unhighlightElement "#registers-r#{register}-pv"
+    @aluController.setHighlightXRegister off
+    @aluController.setHighlightYRegister off
+    @aluController.setHighlightZRegister off
+    @aluController.setHighlightCCFlags off
+    @aluController.setHighlightCCRegister off
 
   preview: ->
     @clearPreview()
-    switch @nextPhase
+    switch @cpu.nextPhase
       when 0 then actions = MicrocodeParser.parseGetPhase @cpu.microcode
       when 1 then actions = MicrocodeParser.parseCalcPhase @cpu.microcode
       when 2 then actions = MicrocodeParser.parsePutPhase @cpu.microcode
@@ -86,9 +129,25 @@ class @CpuController
         @previewPushVal to, value
       when "next"
         @log.debug -> "preview fetching next microcode"
+      when "info"
+        @log.debug -> "preview info..."
+        [ac, value] = rest
+        @previewInfo ac, value
       else
         @log.error -> "unknown command: #{action}"
         
+  previewInfo: (action, val) ->
+    switch action
+      when "update"
+        switch val
+          when "cc"
+            @log.debug -> "preview update cc"
+            @aluController.setHighlightCCRegister on
+          else
+            @log.error -> "unknown update target: #{val}"
+      else
+        @log.error -> "unknown info action: #{action}"
+
 
   previewPush: (to, from) ->
     [fromDomain, fromRegister] = from.split "."
@@ -118,10 +177,10 @@ class @CpuController
         switch fromRegister
           when "Z"
             @log.debug -> "adding alu-z-pv"
-            @highlightElement "#alu-z-pv"
+            @aluController.setHighlightZRegister on
           when "CC"
             @log.debug -> "adding alu-cc-pv"
-            @highlightElement "#alu-cc-pv"
+            @aluController.setHighlightCCFlags on
     
     if @previewSetTarget(to) is true
       @log.debug -> "...push ok"
@@ -164,13 +223,13 @@ class @CpuController
         switch toRegister
           when "X"
             @log.debug -> "to alu.X"
-            @highlightElement "#alu-x-pv"
+            @aluController.setHighlightXRegister on
           when "Y"
             @log.debug -> "to alu.Y"
-            @highlightElement "#alu-y-pv"
+            @aluController.setHighlightYRegister on
           when "Z"
             @log.debug -> "to alu.Z"
-            @highlightElement "#alu-z-pv"
+            @aluController.setHighlightZRegister on
           when "FC"
             @log.debug -> "to alu.FC"
 
@@ -212,15 +271,3 @@ class @CpuController
         @log.debug -> "preview running mac"
       else
         @log.error -> "unknown compute target: #{target}"
-
-  highlightElement: (id) ->
-    unless $(id).hasClass("success")
-              $(id).addClass("success")
-
-  unhighlighElement: (id) ->
-    $(id).removeClass("success")
-
-  setNextPhase: ->
-    @nextPhase = (@nextPhase + 1) % 3
-
-$(document).ready -> new CpuController()
