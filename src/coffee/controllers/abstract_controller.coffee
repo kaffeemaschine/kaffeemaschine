@@ -42,14 +42,19 @@ class @AbstractController
         if (value > mask) or ((value | mask) >>> 0) isnt mask or isNaN value
           ($ "#modal-val-#{mode}-ctrl").removeClass "success"
           ($ "#modal-val-set-btn").prop "disabled", true
-          ($ "#modal-val-#{mode}-ctrl").addClass "error" unless ($ "#modal-val-#{mode}-ctrl").hasClass "error"
+          unless ($ "#modal-val-#{mode}-ctrl").hasClass "error"
+            ($ "#modal-val-#{mode}-ctrl").addClass "error"
         else
-          ($ "#modal-val-2-tf").val (Utils.decToBin value, format) unless mode is 2
-          ($ "#modal-val-10-tf").val value unless mode is 10
-          ($ "#modal-val-16-tf").val (Utils.decToHex value, format16) unless mode is 16
+          unless mode is 2
+            ($ "#modal-val-2-tf").val (Utils.decToBin value, format)
+          unless mode is 10
+            ($ "#modal-val-10-tf").val value
+          unless mode is 16
+            ($ "#modal-val-16-tf").val (Utils.decToHex value, format16)
           ($ "#modal-val-#{mode}-ctrl").removeClass "error"
           ($ "#modal-val-set-btn").prop "disabled", false
-          ($ "#modal-val-#{mode}-ctrl").addClass "success" unless ($ "#modal-val-#{mode}-ctrl").hasClass "success"
+          unless ($ "#modal-val-#{mode}-ctrl").hasClass "success"
+            ($ "#modal-val-#{mode}-ctrl").addClass "success"
     for mode in [2,10,16]
       ($ "#modal-val-#{mode}-tf").unbind 'keyup.modal_val'
       ($ "#modal-val-#{mode}-tf").bind 'keyup.modal_val', (mkErrorChecker mode)

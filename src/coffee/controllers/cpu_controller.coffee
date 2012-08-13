@@ -13,7 +13,7 @@ class @CpuController extends AbstractController
     
     @aluController = new AluController(alu)
 
-    @initListener()    
+    @initListener()
     @cpu.setCpuListeners [@cpuListener]
 
     @setPowerHandlers()

@@ -1,6 +1,6 @@
 class @ConductorPathView
-  constructor: (@strokeStyle = "#000", @fillEmpty = "#fff", @fillActive = "#f00",
-      @lineWidth = 0.5, @pathWidth = 6) ->
+  constructor: (@strokeStyle = "#000", @fillEmpty = "#fff",
+    @fillActive = "#f00", @lineWidth = 0.5, @pathWidth = 6) ->
 
     @log = Utils.getLogger "ConductorPathView"
 
@@ -66,7 +66,7 @@ class @ConductorPathView
       @context.fillStyle = @fillEmpty
 
     if true in @activeX
-        @context.fillStyle = @fillActive
+      @context.fillStyle = @fillActive
     @context.beginPath()
     @context.moveTo xPos+offX+@pathWidth, yPos
     @context.lineTo xPos+offX+@pathWidth, middleY
@@ -152,7 +152,7 @@ class @ConductorPathView
       @context.fill()
       @context.fillStyle = @fillEmpty
     if true in @activeY
-        @context.fillStyle = @fillActive
+      @context.fillStyle = @fillActive
     @context.beginPath()
     @context.moveTo xPos+offX+@pathWidth, yPos
     @context.lineTo xPos+offX+@pathWidth, middleY

@@ -125,7 +125,7 @@ class @Cpu
     @setNextPhase()
 
   performAction: (a) ->
-    @log.debug -> "performing action=#{a}" 
+    @log.debug -> "performing action=#{a}"
     [action, rest...] = a.split " "
 
     
@@ -214,7 +214,7 @@ class @Cpu
     switch toDomain
       when "registers"
         @log.debug => "to R#{parseInt toRegister}"
-        @registers[parseInt toRegister] = value        
+        @registers[parseInt toRegister] = value
       when "ram"
         switch toRegister
           when "MAR"

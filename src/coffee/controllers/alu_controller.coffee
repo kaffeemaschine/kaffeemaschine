@@ -67,4 +67,4 @@ class @AluController extends AbstractController
     if mode is on
       @highlightElement "#cc-cc-pv"
     else
-      @unhighlightElement "#cc-cc-pv" 
+      @unhighlightElement "#cc-cc-pv"

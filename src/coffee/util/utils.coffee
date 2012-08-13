@@ -145,7 +145,7 @@ class @Utils
       # 17: X SAR Y->Z
       when 17
         result = "X SAR Y -> Z"
-      # 18: CMP arithm. X Y->Z 
+      # 18: CMP arithm. X Y->Z
       when 18
         result = "CMPa X Y -> Z"
       # 19: X AND Y -> Z

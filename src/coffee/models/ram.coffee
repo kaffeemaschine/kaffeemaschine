@@ -50,10 +50,10 @@ class @Ram
     switch @mode
       when 1
         @log.debug -> "ram is reading..."
-        @read();
+        @read()
       when 2
         @log.debug -> "ram is writing..."
-        @write();
+        @write()
 
   read: ->
     mem = 0
