@@ -146,6 +146,9 @@ class @Cpu
       when "next"
         @log.debug -> "fetching next microcode"
         @setMicrocode(@rom.read())
+      when "info"
+        @log.debug -> "info"
+        # do nothing... only info
       else
         @log.error -> "unknown command: #{action}"
         
