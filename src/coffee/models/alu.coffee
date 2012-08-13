@@ -1,7 +1,8 @@
 class @Alu
   constructor: (@aluListeners = []) ->
-    @reset()
     @log = Utils.getLogger "Alu"
+    @log.debug -> "creating Alu"
+    @reset()
 
   setAluListeners: (l) -> @aluListeners = l
 
@@ -293,7 +294,8 @@ class @Alu
   notifyFC: (x) ->
     listener.onSetFC?(x) for listener in @aluListeners
 
-  reset: () ->
+  reset: ->
+    @log.debug -> "reset alu"
     @setFunctionCode 0
 
     # set register & flags to random values
