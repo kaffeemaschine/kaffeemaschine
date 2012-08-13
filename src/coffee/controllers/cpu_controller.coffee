@@ -2,6 +2,9 @@ class @CpuController extends AbstractController
   constructor: ->
     @log = Utils.getLogger 'CpuController'
 
+    # conductors
+    @cpv = new ConductorPathView()
+
     alu = new Alu()
     ram = new Ram()
     mac = new Mac()
@@ -36,12 +39,26 @@ class @CpuController extends AbstractController
       ($ "#info-tarea").val(mc.remarks)
       @preview()
     @cpuListener.setOnNextPhase (phase) =>
+      @cpv.redraw()
       @preview()
+      @cpv.resetActive()
+    @cpuListener.setOnSignal (to, from) =>
+      [domain, register] = from.split "."
+      switch to
+        when "alu.X"
+          @cpv.setActiveX (parseInt register), true
+        when "alu.Y"
+          switch domain
+            when "registers"
+              @cpv.setActiveY (parseInt register), true
+            when "ram"
+              @cpv.setActiveY 8, true
 
   setPowerHandlers: ->
     # reset button
     ($ "#power-reset-btn").click =>
       @cpu.reset()
+      @cpv.resetActive()
     # run phase button
     ($ "#power-phase-btn").click =>
       @cpu.runPhase()

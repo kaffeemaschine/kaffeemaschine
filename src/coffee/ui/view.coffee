@@ -1,17 +1,25 @@
-log = Utils.getLogger "View"
-$(window).resize ->
-  log.debug -> $('#registers-r1-btn').offset().top -
-                      $('#registers-r0-btn').offset().top
-
 class @ConductorPathView
-  constructor: (@strokeStyle = "#000", @fillEmpty = "#fff",
+  constructor: (@strokeStyle = "#000", @fillEmpty = "#fff", @fillActive = "#f00",
       @lineWidth = 0.5, @pathWidth = 6) ->
 
     @log = Utils.getLogger "ConductorPathView"
 
     @createCanvas()
+
+    @resetActive()
+
     @drawXBus()
     @drawYBus()
+
+  resetActive: ->
+    @activeX = [false, false, false, false, false, false, false, false]
+    @activeY = [false, false, false, false, false, false, false, false, false]
+
+  setActiveX: (register, val) ->
+    @activeX[register] = val
+
+  setActiveY: (register, val) ->
+    @activeY[register] = val
 
   drawXBus: ->
     @log.debug -> "drawing x bus"
@@ -25,7 +33,7 @@ class @ConductorPathView
     offX = 30
     offY = $('#registers-r1-btn').offset().top -
               $('#registers-r0-btn').offset().top
-    middleY = 275.5
+    middleY = 255.5
     endX = $('#alu-z-tf').offset().left - $('#overlay').offset().left +
               $('#alu-z-tf').width()/2
     endY = $('#alu-z-tf').offset().top - $('#overlay').offset().top
@@ -52,7 +60,13 @@ class @ConductorPathView
       @context.stroke()
       @context.beginPath()
       @context.rect xPos, yPos + register*offY+1, offX, @pathWidth-2
+      if @activeX[register] is true
+        @context.fillStyle = @fillActive
       @context.fill()
+      @context.fillStyle = @fillEmpty
+
+    if true in @activeX
+        @context.fillStyle = @fillActive
     @context.beginPath()
     @context.moveTo xPos+offX+@pathWidth, yPos
     @context.lineTo xPos+offX+@pathWidth, middleY
@@ -81,6 +95,7 @@ class @ConductorPathView
   drawYBus: ->
     @log.debug -> "drawing y bus"
     @context.strokeStyle = @strokeStyle
+    @context.fillStyle = @fillEmpty
     @context.lineWidth = @lineWidth
     xPos = $('#registers').offset().left - $('#overlay').offset().left +
                 $('#registers').width()
@@ -110,7 +125,10 @@ class @ConductorPathView
     @context.beginPath()
     @context.rect mdrX, mdrY+1, xPos+offX-mdrX, @pathWidth-2
     @context.rect xPos+offX, mdrY+1, @pathWidth-2, yPos-mdrY
+    if @activeY[8] is true
+      @context.fillStyle = @fillActive
     @context.fill()
+    @context.fillStyle = @fillEmpty
 
     # draw connectors register side
     for register in [0..7]
@@ -129,7 +147,12 @@ class @ConductorPathView
       @context.stroke()
       @context.beginPath()
       @context.rect xPos, yPos + register*offY+1, offX, @pathWidth-2
+      if @activeY[register] is true
+        @context.fillStyle = @fillActive
       @context.fill()
+      @context.fillStyle = @fillEmpty
+    if true in @activeY
+        @context.fillStyle = @fillActive
     @context.beginPath()
     @context.moveTo xPos+offX+@pathWidth, yPos
     @context.lineTo xPos+offX+@pathWidth, middleY
@@ -162,5 +185,8 @@ class @ConductorPathView
   clearCanvas: ->
     @context.clearRect 0, 0, @canvas.width, @canvas.height
 
-cpv = new ConductorPathView
-log.debug -> "cpv = #{cpv}"
+  redraw: ->
+    @clearCanvas()
+    @drawXBus()
+    @drawYBus()
+
