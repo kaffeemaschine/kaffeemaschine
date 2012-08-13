@@ -2,6 +2,7 @@ class @AluController extends AbstractController
   constructor: (@alu) ->
     @log = Utils.getLogger 'AluController'
     @initListener()
+    @setButtonHandlers()
 
   initListener: ->
     @aluListener = new AluListener()
@@ -20,6 +21,23 @@ class @AluController extends AbstractController
 
     @log.debug -> "setting alu listener"
     @alu.setAluListeners [@aluListener]
+
+  setButtonHandlers: ->
+    ($ "#alu-x-btn").click =>
+      @showSetValueModal @alu.getXRegister(), 0xFFFFFFFF, 32, (val) =>
+        @alu.setXRegister val
+    ($ "#alu-y-btn").click =>
+      @showSetValueModal @alu.getYRegister(), 0xFFFFFFFF, 32, (val) =>
+        @alu.setYRegister val
+    ($ "#alu-z-btn").click =>
+      @showSetValueModal @alu.getZRegister(), 0xFFFFFFFF, 32, (val) =>
+        @alu.setZRegister val
+    ($ "#alu-cc-btn").click =>
+      @showSetValueModal @alu.getCCFlags(), 0xF, 4, (val) =>
+        @alu.setCCFlags val
+    ($ "#cc-cc-btn").click =>
+      @showSetValueModal @alu.getCCRegister(), 0xF, 4, (val) =>
+        @alu.setCCRegister val
 
   setHighlightXRegister: (mode) ->
     if mode is on

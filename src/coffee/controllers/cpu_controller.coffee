@@ -17,7 +17,9 @@ class @CpuController extends AbstractController
     @cpu.setCpuListeners [@cpuListener]
 
     @setPowerHandlers()
-    @setMicrocodeInputHandlers() 
+    @setMicrocodeInputHandlers()
+    @setMicrocodeButtonHandlers()
+    @setRegistersButtonHandlers()
 
     @cpu.reset()
     @preview()
@@ -83,6 +85,40 @@ class @CpuController extends AbstractController
       @cpu.setMicrocodeField("ioswitch", value)
     @mkInputHandler "#microcode-byte-tf", 2, 0x3, (value) =>
       @cpu.setMicrocodeField("byte", value)
+
+  setMicrocodeButtonHandlers: ->
+    ($ "#microcode-mode-btn").click =>
+      @showSetValueModal @cpu.microcode.mode, 0x3, 2, (val) =>
+        @cpu.setMicrocodeField "mode", val
+    ($ "#microcode-mcnext-btn").click =>
+      @showSetValueModal @cpu.microcode.mcnext, 0x3F, 6, (val) =>
+        @cpu.setMicrocodeField "mcnext", val
+    ($ "#microcode-alufc-btn").click =>
+      @showSetValueModal @cpu.microcode.alufc, 0x7F, 7, (val) =>
+        @cpu.setMicrocodeField "alufc", val
+    ($ "#microcode-xbus-btn").click =>
+      @showSetValueModal @cpu.microcode.xbus, 0xFF, 8, (val) =>
+        @cpu.setMicrocodeField "xbus", val
+    ($ "#microcode-ybus-btn").click =>
+      @showSetValueModal @cpu.microcode.ybus, 0xFF, 8, (val) =>
+        @cpu.setMicrocodeField "ybus", val
+    ($ "#microcode-zbus-btn").click =>
+      @showSetValueModal @cpu.microcode.zbus, 0xFF, 8, (val) =>
+        @cpu.setMicrocodeField "zbus", val
+    ($ "#microcode-ioswitch-btn").click =>
+      @showSetValueModal @cpu.microcode.ioswitch, 0xFF, 8, (val) =>
+        @cpu.setMicrocodeField "ioswitch", val
+    ($ "#microcode-byte-btn").click =>
+      @showSetValueModal @cpu.microcode.byte, 0x3, 2, (val) =>
+        @cpu.setMicrocodeField "byte", val
+
+  setRegistersButtonHandlers: ->
+    bind = (register) =>
+      ($ "#registers-r#{register}-btn").click =>
+        @showSetValueModal @cpu.registers[register], 0xFFFFFFFF, 32, (val) =>
+          @cpu.setRegister register, val
+    for register in [0..7]
+      bind register
 
   clearPreview: ->
     @unhighlightElement "#rom-mcar-pv"
