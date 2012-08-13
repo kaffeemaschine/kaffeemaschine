@@ -24,8 +24,46 @@ class @Cpu
       mnemonic: ""
       remarks: ""
 
+
   setCpuListeners: (l) ->
     @cpuListeners = l
+
+  setMicrocodeField: (field, value) ->
+    switch field
+      when "mode"
+        @log.debug -> "setting mc.mode to #{value}"
+        @microcode.mode = value
+      when "mcnext"
+        @log.debug -> "setting mc.mcnext to #{value}"
+        @microcode.mcnext = value
+      when "alufc"
+        @log.debug -> "setting mc.alufc to #{value}"
+        @microcode.alufc = value
+      when "xbus"
+        @log.debug -> "setting mc.xbus to #{value}"
+        @microcode.xbus = value
+      when "ybus"
+        @log.debug -> "setting mc.ybus to #{value}"
+        @microcode.ybus = value
+      when "zbus"
+        @log.debug -> "setting mc.zbus to #{value}"
+        @microcode.zbus = value
+      when "ioswitch"
+        @log.debug -> "setting mc.ioswitch to #{value}"
+        @microcode.ioswitch = value
+      when "byte"
+        @log.debug -> "setting mc.byte to #{value}"
+        @microcode.byte = value
+      when "mnemonic"
+        @log.debug -> "setting mc.mnemonic to #{value}"
+        @microcode.mnemonic = value
+      when "remarks"
+        @log.debug -> "setting mc.remarks to #{value}"
+        @microcode.remarks = value
+      else
+        @log.warning -> "unknown field #{field} in setMicrocodeField."
+    @publishMicrocode()
+
 
   setMicrocode: (code) ->
     @log.debug -> "setting microcode to\n
@@ -38,6 +76,9 @@ class @Cpu
                    ioswitch: #{code.ioswitch}\n
                    byte: #{code.byte}\n"
     @microcode = code
+    @publishMicrocode()
+
+  publishMicrocode: ->
     #update ram mode and ram format
     @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
     @ram.setFormat(@microcode.byte)
@@ -83,8 +124,10 @@ class @Cpu
     @setNextPhase()
 
   performAction: (a) ->
-    @log.debug -> "performing action=#{a}"
+    @log.debug -> "performing action=#{a}" 
     [action, rest...] = a.split " "
+
+    
 
     switch action
       when "compute"
