@@ -76,7 +76,6 @@ class @Cpu
 
   setMicrocode: (code) ->
     code = Utils.sanitizeMicrocode code
-    console.log code
     @log.debug -> "setting microcode to\n
                    mode: #{code.mode}\n
                    mcnext: #{code.mcnext}\n

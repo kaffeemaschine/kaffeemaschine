@@ -8,7 +8,8 @@ class @AbstractController
     ($ id).removeClass highlightClass
   mkInputHandler: (input, base, mask,  callback) ->
     input = $ input
-    input.keyup ->
+      
+    input.bind 'change keypress paste focus textInput input', ->
       oldSelectionStart = input[0].selectionStart
       oldSelectionEnd = input[0].selectionEnd
 
@@ -56,8 +57,8 @@ class @AbstractController
           unless ($ "#modal-val-#{mode}-ctrl").hasClass "success"
             ($ "#modal-val-#{mode}-ctrl").addClass "success"
     for mode in [2,10,16]
-      ($ "#modal-val-#{mode}-tf").unbind 'keyup.modal_val'
-      ($ "#modal-val-#{mode}-tf").bind 'keyup.modal_val', (mkErrorChecker mode)
+      ($ "#modal-val-#{mode}-tf").unbind 'change keypress paste focus textInput input'
+      ($ "#modal-val-#{mode}-tf").bind 'change keypress paste focus textInput input', (mkErrorChecker mode)
     ($ "#modal-val-set-btn").unbind 'click.modal_val'
     ($ "#modal-val-set-btn").bind 'click.modal_val',  =>
       callback parseInt ($ "#modal-val-10-tf").val()
