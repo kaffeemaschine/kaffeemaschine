@@ -30,11 +30,14 @@ class @Ram
     # update mdr to new format
     @setMdr(@mdr)
 
-  setMar: (m) ->
-    @mar = (m & 0x7FF) >>> 0
+  setMar: (value) ->
+    value = Utils.sanitizeNum value, 0x7FF
+    @mar = value
     @notifyMar(@mar)
 
   setMdr: (m) ->
+    if isNaN m
+      m = 0
     @mdr = Utils.extractNum(m, 1, 1 + (@format+1)*8)
     @notifyMdr(@mdr)
 
@@ -94,6 +97,7 @@ class @Ram
     return byte
 
   setByte: (at, val) ->
+    val = Utils.sanitizeNum val, 0xFF
     index = Math.floor(at/4)
     offset = at % 4
     for bit in [1..8]

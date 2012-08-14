@@ -401,7 +401,7 @@ test "GetPhase sets ALU's function code", ->
     ioswitch: 0
     byte: 0)
   cpu.runGetPhase()
-  verify(mockAlu, times(2)).setFunctionCode(137)
+  verify(mockAlu, times(2)).setFunctionCode(9)
   ok(true)
 
 test "GetPhase sets ALU's function code signals listeners", ->
@@ -415,7 +415,7 @@ test "GetPhase sets ALU's function code signals listeners", ->
   cpu.setMicrocode(
     mode: 0
     mcnext: 0
-    alufc: 137
+    alufc: 37
     xbus: 0
     ybus: 0
     zbus: 0

@@ -4,6 +4,7 @@ class @Rom
     @memory = []
 
   setMcar: (m) ->
+    m = Utils.sanitizeNum m, 0xFFF
     @mcar = m
     @notifySetMcar(m)
 
@@ -11,6 +12,7 @@ class @Rom
     @mcar
 
   setMicrocode: (at, mc) ->
+    mc = Utils.sanitizeMicrocode mc
     @memory[at] = mc
     @notifySetMc(at, mc)
 

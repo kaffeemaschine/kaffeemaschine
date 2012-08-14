@@ -5,21 +5,24 @@ class @CpuController extends AbstractController
     # conductors
     @cpv = new ConductorPathView()
 
+
+
     alu = new Alu()
     ram = new Ram()
     mac = new Mac()
     rom = new Rom()
     @cpu = new Cpu(alu, ram, mac, rom)
     
-    @aluController = new AluController(alu)
+    @aluController = new AluController alu
+    @ramController = new RamController ram
 
     @initListener()
     @cpu.setCpuListeners [@cpuListener]
 
-    @setPowerHandlers()
-    @setMicrocodeInputHandlers()
-    @setMicrocodeButtonHandlers()
-    @setRegistersButtonHandlers()
+    @initPowerHandlers()
+    @initMicrocodeInputHandlers()
+    @initMicrocodeButtonHandlers()
+    @initRegistersButtonHandlers()
 
     @cpu.reset()
     @preview()
@@ -56,7 +59,7 @@ class @CpuController extends AbstractController
             when "ram"
               @cpv.setActiveY 8, true
 
-  setPowerHandlers: ->
+  initPowerHandlers: ->
     # reset button
     ($ "#power-reset-btn").click =>
       @cpu.reset()
@@ -68,7 +71,7 @@ class @CpuController extends AbstractController
     ($ "#power-tact-btn").click =>
       @cpu.runTact()
 
-  setMicrocodeInputHandlers: ->
+  initMicrocodeInputHandlers: ->
     @mkInputHandler "#microcode-mode-tf", 2, 0x3, (value) =>
       @cpu.setMicrocodeField("mode", value)
     @mkInputHandler "#microcode-mcnext-tf", 2, 0x3F, (value) =>
@@ -86,7 +89,7 @@ class @CpuController extends AbstractController
     @mkInputHandler "#microcode-byte-tf", 2, 0x3, (value) =>
       @cpu.setMicrocodeField("byte", value)
 
-  setMicrocodeButtonHandlers: ->
+  initMicrocodeButtonHandlers: ->
     ($ "#microcode-mode-btn").click =>
       @showSetValueModal @cpu.microcode.mode, 0x3, 2, (val) =>
         @cpu.setMicrocodeField "mode", val
@@ -112,7 +115,7 @@ class @CpuController extends AbstractController
       @showSetValueModal @cpu.microcode.byte, 0x3, 2, (val) =>
         @cpu.setMicrocodeField "byte", val
 
-  setRegistersButtonHandlers: ->
+  initRegistersButtonHandlers: ->
     bind = (register) =>
       ($ "#registers-r#{register}-btn").click =>
         @showSetValueModal @cpu.registers[register], 0xFFFFFFFF, 32, (val) =>

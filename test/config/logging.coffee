@@ -6,4 +6,4 @@
 #   - log4javascript.Level.WARN
 #   - log4javascript.Level.ERROR
 #   - log4javascript.Level.FATAL
-log4javascript.getLogger().setLevel log4javascript.Level.ERROR
+log4javascript.getLogger().setLevel log4javascript.Level.ALL

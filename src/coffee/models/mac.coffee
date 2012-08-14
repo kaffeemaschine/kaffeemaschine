@@ -11,35 +11,43 @@ class @Mac
 
   setMode: (val) ->
     @log.debug -> "val=#{val}, mode=#{(val & 0x3) >>> 0}"
-    @mode = (val & 0x3) >>> 0
+    val = Utils.sanitizeNum val, 0x3
+    @mode = val
     @notifySetMode(@mode)
 
   setCC: (val) ->
-    @ccRegister = (val & 0xF) >>> 0
+    val = Utils.sanitizeNum val, 0xF
+    @ccRegister = val
     @notifySetCC(@ccRegister)
 
   setMask: (val) ->
-    @maskRegister = (val & 0xF) >>> 0
+    val = Utils.sanitizeNum val, 0xF
+    @maskRegister = val
     @notifySetMask(@maskRegister)
 
   setTimes4: (val) ->
-    @times4 = (val & 0x1) >>> 0
+    val = Utils.sanitizeNum val, 0x1
+    @times4 = val
     @notifySetTimes4(@times4)
 
   setMcop: (val) ->
-    @mcopRegister = (val & 0xFF) >>> 0
+    val = Utils.sanitizeNum val, 0xFF
+    @mcopRegister = val
     @notifySetMcop(@mcopRegister)
 
   setMcarNext: (val) ->
-    @mcarNextRegister = (val & 0xFFF) >>> 0
+    val = Utils.sanitizeNum val, 0xFFF
+    @mcarNextRegister = val
     @notifySetMcarNext(@mcarNextRegister)
 
   setMcn: (val) ->
-    @mcnRegister = (val & 0x3F) >>> 0
+    val = Utils.sanitizeNum val, 0x3F    
+    @mcnRegister = val
     @notifySetMcn(@mcnRegister)
 
   setMcar: (val) ->
-    @mcarRegister = (val & 0xFFF) >>> 0
+    val = Utils.sanitizeNum val, 0xFFF
+    @mcarRegister = val
     @notifySetMcar(@mcarRegister)
 
   compute: ->

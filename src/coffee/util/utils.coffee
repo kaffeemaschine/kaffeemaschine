@@ -82,6 +82,24 @@ class @Utils
   @decToBin: (decimal, chars) ->
     (decimal + Math.pow(2, chars)).toString(2).slice(-chars)
 
+  @sanitizeNum: (num, mask) ->
+    if isNaN num
+      num = 0
+    num = (num & mask) >>> 0
+    num
+
+  @sanitizeMicrocode: (mc) ->
+    mc.mode = @sanitizeNum mc.mode, 0x3
+    mc.mcnext = @sanitizeNum mc.mcnext, 0x3F
+    mc.alufc = @sanitizeNum mc.alufc, 0x7F
+    mc.xbus = @sanitizeNum mc.xbus, 0xFFFFFFFF
+    mc.ybus = @sanitizeNum mc.ybus, 0xFFFFFFFF
+    mc.zbus = @sanitizeNum mc.zbus, 0xFFFFFFFF
+    mc.ioswitch = @sanitizeNum mc.ioswitch, 0xFFFFFFFF
+    mc.byte = @sanitizeNum mc.byte, 0x3
+    mc
+    
+
   @functionCodeToText: (functionCode) ->
     copyCC = Utils.isBitSet(functionCode, 7)
 

@@ -28,6 +28,10 @@ background-image: radial-gradient(circle farthest-corner at center top, #7A7A7A 
 
 .input-micro       { width: 30px; }
 
+.input-nano       { width: 20px; }
+
+.ram-selection-highlight { color: #049cdb; }
+
 .component {
 display: inline-block;
 background-color: #ddd;
