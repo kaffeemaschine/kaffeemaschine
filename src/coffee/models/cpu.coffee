@@ -97,7 +97,7 @@ class @Cpu
     @notifyMicrocode(@microcode)
 
   setRegister: (register, value) ->
-    value = Utils.sanitizeNum value, 0xFFFFFFFF    
+    value = Utils.sanitizeNum value, 0xFFFFFFFF
     @registers[register] = value
     @notifySetRegister(register, value)
 

@@ -45,7 +45,7 @@ class @Alu
     @ccFlags = val
     @notifyFlags(@ccFlags)
   setFunctionCode: (val) ->
-    val = Utils.sanitizeNum val, 0x7F  
+    val = Utils.sanitizeNum val, 0x7F
     @functionCode = val
     @notifyFC(@functionCode)
 

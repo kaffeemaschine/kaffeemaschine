@@ -41,7 +41,7 @@ class @Mac
     @notifySetMcarNext(@mcarNextRegister)
 
   setMcn: (val) ->
-    val = Utils.sanitizeNum val, 0x3F    
+    val = Utils.sanitizeNum val, 0x3F
     @mcnRegister = val
     @notifySetMcn(@mcnRegister)
 

@@ -23,21 +23,54 @@ class @RamController extends AbstractController
     parseRamId = (id) ->
       [u,v,w,row] = id.split "-"
       parseInt row
-    # update editable cells
+    hasErrors = ->
+      for offset in [0..7]
+        if ($ "#modal-ram-val#{offset}-ctrl").hasClass "error"
+          return true
+      false
+        
+    errorChecker = (offset) -> ->
+      mask = 0xFF
+      value = parseInt ($ "#modal-ram-val#{offset}-tf").val(), 16
+      if (value > mask) or ((value | mask) >>> 0) isnt mask or isNaN value
+        ($ "#modal-ram-val#{offset}-ctrl").removeClass "success"
+        ($ "#modal-ram-set-btn").prop "disabled", true
+        unless ($ "#modal-ram-val#{offset}-ctrl").hasClass "error"
+          ($ "#modal-ram-val#{offset}-ctrl").addClass "error"
+      else
+        ($ "#modal-ram-val#{offset}-ctrl").removeClass "error"
+        unless hasErrors()
+          ($ "#modal-ram-set-btn").prop "disabled", false
+        unless ($ "#modal-ram-val#{offset}-ctrl").hasClass "success"
+          ($ "#modal-ram-val#{offset}-ctrl").addClass "success"
+
+    # update editable cells function
     doUpdate = (row) =>
       for offset in [0..7]
-        ($ "#modal-ram-val#{offset}-tf").val (Utils.decToHex (@ram.getByte row*8+offset), 2)
+        ($ "#modal-ram-val#{offset}-ctrl").removeClass "success"
+        ($ "#modal-ram-val#{offset}-ctrl").removeClass "error"
+        ($ "#modal-ram-val#{offset}-tf").val (
+          Utils.decToHex (@ram.getByte row*8+offset), 2)
 
+    # make rows clickable
     ($ '#modal-ram-table tbody tr').click ->
       ($ '#modal-ram-table tbody tr').removeClass 'ram-selection-highlight'
       unless ($ @).hasClass 'ram-selection-highlight'
         ($ @).addClass 'ram-selection-highlight'
         doUpdate (parseRamId (($ @).attr 'id'))
 
+    # error checkers
+    for offset in [0..7]
+      ($ "#modal-ram-val#{offset}-tf").bind 'change keypress paste
+        focus textInput input', (errorChecker offset)
+
+    # set button
     ($ '#modal-ram-set-btn').click =>
       row = parseRamId (@getSelectedRamRow().attr 'id')
       for offset in [0..7]
-        @ram.setByte row*8+offset, (parseInt ($ "#modal-ram-val#{offset}-tf").val(), 16)
+        @ram.setByte row*8+offset,
+          (parseInt ($ "#modal-ram-val#{offset}-tf").val(), 16)
+    
         
     
 
@@ -58,7 +91,6 @@ class @RamController extends AbstractController
     @ramListener.setOnSetMdr (value) =>
       ($ "#ram-mdr-tf").val (Utils.decToHex value, 2+@ram.format*2)
     @ramListener.setOnSetByte (at, value) ->
-      console.log "update"
       ($ "#modal-ram-b#{at}-tf").html (Utils.decToHex value, 2)
   
     @log.debug -> 'setting ram listener'
@@ -87,6 +119,6 @@ class @RamController extends AbstractController
 
   showRamModal: ->
     row = @getSelectedRamRow()
-    # update values  
+    # update values
     row.trigger('click')
     ($ '#modal-ram').modal('show')
