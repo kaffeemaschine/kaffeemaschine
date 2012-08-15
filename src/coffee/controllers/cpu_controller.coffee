@@ -15,6 +15,7 @@ class @CpuController extends AbstractController
     
     @aluController = new AluController alu
     @ramController = new RamController ram
+    @romController = new RomController rom
 
     @initListener()
     @cpu.setCpuListeners [@cpuListener]
