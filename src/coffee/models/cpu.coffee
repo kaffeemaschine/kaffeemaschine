@@ -32,29 +32,37 @@ class @Cpu
   setMicrocodeField: (field, value) ->
     switch field
       when "mode"
-        @log.debug -> "setting mc.mode to #{value}"
-        @microcode.mode = value
+        num = Utils.sanitizeNum value, 0x3
+        @log.debug -> "setting mc.mode to #{num}"
+        @microcode.mode = num
       when "mcnext"
-        @log.debug -> "setting mc.mcnext to #{value}"
-        @microcode.mcnext = value
+        num = Utils.sanitizeNum value, 0x3F
+        @log.debug -> "setting mc.mcnext to #{num}"
+        @microcode.mcnext = num
       when "alufc"
-        @log.debug -> "setting mc.alufc to #{value}"
-        @microcode.alufc = value
+        num = Utils.sanitizeNum value, 0x7F
+        @log.debug -> "setting mc.alufc to #{num}"
+        @microcode.alufc = num
       when "xbus"
-        @log.debug -> "setting mc.xbus to #{value}"
-        @microcode.xbus = value
+        num = Utils.sanitizeNum value, 0xFFFFFFFF
+        @log.debug -> "setting mc.xbus to #{num}"
+        @microcode.xbus = num
       when "ybus"
-        @log.debug -> "setting mc.ybus to #{value}"
-        @microcode.ybus = value
+        num = Utils.sanitizeNum value, 0xFFFFFFFF
+        @log.debug -> "setting mc.ybus to #{num}"
+        @microcode.ybus = num
       when "zbus"
-        @log.debug -> "setting mc.zbus to #{value}"
-        @microcode.zbus = value
+        num = Utils.sanitizeNum value, 0xFFFFFFFF
+        @log.debug -> "setting mc.zbus to #{num}"
+        @microcode.zbus = num
       when "ioswitch"
-        @log.debug -> "setting mc.ioswitch to #{value}"
-        @microcode.ioswitch = value
+        num = Utils.sanitizeNum value, 0xFFFFFFFF
+        @log.debug -> "setting mc.ioswitch to #{num}"
+        @microcode.ioswitch = num
       when "byte"
-        @log.debug -> "setting mc.byte to #{value}"
-        @microcode.byte = value
+        num = Utils.sanitizeNum value, 0x3
+        @log.debug -> "setting mc.byte to #{num}"
+        @microcode.byte = num
       when "mnemonic"
         @log.debug -> "setting mc.mnemonic to #{value}"
         @microcode.mnemonic = value
@@ -67,6 +75,7 @@ class @Cpu
 
 
   setMicrocode: (code) ->
+    code = Utils.sanitizeMicrocode code
     @log.debug -> "setting microcode to\n
                    mode: #{code.mode}\n
                    mcnext: #{code.mcnext}\n
@@ -88,6 +97,7 @@ class @Cpu
     @notifyMicrocode(@microcode)
 
   setRegister: (register, value) ->
+    value = Utils.sanitizeNum value, 0xFFFFFFFF
     @registers[register] = value
     @notifySetRegister(register, value)
 

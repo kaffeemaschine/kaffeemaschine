@@ -25,21 +25,27 @@ class @Alu
     fCode: @functionCode
 
   setXRegister: (val) ->
+    val = Utils.sanitizeNum val, 0xFFFFFFFF
     @xRegister = val
     @notifyX(@xRegister)
   setYRegister: (val) ->
+    val = Utils.sanitizeNum val, 0xFFFFFFFF
     @yRegister = val
     @notifyY(@yRegister)
   setZRegister: (val) ->
+    val = Utils.sanitizeNum val, 0xFFFFFFFF
     @zRegister = val
     @notifyZ(@zRegister)
   setCCRegister: (val) ->
+    val = Utils.sanitizeNum val, 0xF
     @ccRegister = val
     @notifyCC(@ccRegister)
   setCCFlags: (val) ->
+    val = Utils.sanitizeNum val, 0xF
     @ccFlags = val
     @notifyFlags(@ccFlags)
   setFunctionCode: (val) ->
+    val = Utils.sanitizeNum val, 0x7F
     @functionCode = val
     @notifyFC(@functionCode)
 

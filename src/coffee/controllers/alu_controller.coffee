@@ -2,11 +2,11 @@ class @AluController extends AbstractController
   constructor: (@alu) ->
     @log = Utils.getLogger 'AluController'
     @initListener()
-    @setButtonHandlers()
+    @initButtonHandlers()
 
   initListener: ->
     @aluListener = new AluListener()
-    @aluListener.setOnSetX (value) =>
+    @aluListener.setOnSetX (value) ->
       ($ "#alu-x-tf").val (Utils.decToHex value, 8)
     @aluListener.setOnSetY (value) ->
       ($ "#alu-y-tf").val (Utils.decToHex value, 8)
@@ -22,7 +22,7 @@ class @AluController extends AbstractController
     @log.debug -> "setting alu listener"
     @alu.setAluListeners [@aluListener]
 
-  setButtonHandlers: ->
+  initButtonHandlers: ->
     ($ "#alu-x-btn").click =>
       @showSetValueModal @alu.getXRegister(), 0xFFFFFFFF, 32, (val) =>
         @alu.setXRegister val
