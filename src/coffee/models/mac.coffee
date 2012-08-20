@@ -13,16 +13,19 @@ class @Mac
     @log.debug -> "val=#{val}, mode=#{(val & 0x3) >>> 0}"
     val = Utils.sanitizeNum val, 0x3
     @mode = val
+    @updateTimes4()
     @notifySetMode(@mode)
 
   setCC: (val) ->
     val = Utils.sanitizeNum val, 0xF
     @ccRegister = val
+    @updateTimes4()
     @notifySetCC(@ccRegister)
 
   setMask: (val) ->
     val = Utils.sanitizeNum val, 0xF
     @maskRegister = val
+    @updateTimes4()
     @notifySetMask(@maskRegister)
 
   setTimes4: (val) ->
@@ -33,22 +36,46 @@ class @Mac
   setMcop: (val) ->
     val = Utils.sanitizeNum val, 0xFF
     @mcopRegister = val
+    @updateTimes4()
     @notifySetMcop(@mcopRegister)
 
   setMcarNext: (val) ->
     val = Utils.sanitizeNum val, 0xFFF
     @mcarNextRegister = val
+    @updateTimes4()
     @notifySetMcarNext(@mcarNextRegister)
 
   setMcn: (val) ->
     val = Utils.sanitizeNum val, 0x3F
     @mcnRegister = val
+    @updateTimes4()
     @notifySetMcn(@mcnRegister)
 
   setMcar: (val) ->
     val = Utils.sanitizeNum val, 0xFFF
     @mcarRegister = val
+    @updateTimes4()
     @notifySetMcar(@mcarRegister)
+
+  updateTimes4: ->
+    switch @mode
+      when 3
+        jumpMode = Utils.extractNum(@mcnRegister, 5, 6)
+        switch jumpMode
+          when 1
+            if ((@maskRegister & @ccRegister) >>> 0) isnt 0
+              @setTimes4 1
+            else
+              @setTimes4 0
+          when 2
+            if ((@maskRegister & @ccRegister) >>> 0) is 0
+              @setTimes4 1
+            else
+              @setTimes4 0
+          else
+            @setTimes4 0
+      else
+        @setTimes4 0
 
   compute: ->
     switch @mode
@@ -75,6 +102,20 @@ class @Mac
               @setMcarNext(@mcarRegister + 1)
           when 3
             @setMcarNext(@mcarRegister + 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   notifySetMode : (val) ->
     listener.onSetMode?(val) for listener in @macListeners
