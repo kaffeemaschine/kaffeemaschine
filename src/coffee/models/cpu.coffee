@@ -90,11 +90,14 @@ class @Cpu
 
   publishMicrocode: ->
     #update ram mode and ram format
-    @ram.setMode(Utils.extractNum(@microcode.ioswitch, 1, 2))
-    @ram.setFormat(@microcode.byte)
+    @ram.setMode (Utils.extractNum @microcode.ioswitch, 1, 2)
+    @ram.setFormat @microcode.byte
     #update alu function code
-    @alu.setFunctionCode(@microcode.alufc)
-    @notifyMicrocode(@microcode)
+    @alu.setFunctionCode @microcode.alufc
+    #update mac
+    @mac.setMode @microcode.mode
+    @mac.setMcn @microcode.mcnext
+    @notifyMicrocode @microcode
 
   setRegister: (register, value) ->
     value = Utils.sanitizeNum value, 0xFFFFFFFF

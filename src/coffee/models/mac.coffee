@@ -10,7 +10,6 @@ class @Mac
     @mcarNextRegister
 
   setMode: (val) ->
-    @log.debug -> "val=#{val}, mode=#{(val & 0x3) >>> 0}"
     val = Utils.sanitizeNum val, 0x3
     @mode = val
     @updateTimes4()
@@ -48,6 +47,8 @@ class @Mac
   setMcn: (val) ->
     val = Utils.sanitizeNum val, 0x3F
     @mcnRegister = val
+    mask = Utils.extractNum val, 1, 4
+    @setMask mask
     @updateTimes4()
     @notifySetMcn(@mcnRegister)
 
