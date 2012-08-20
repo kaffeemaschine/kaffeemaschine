@@ -10,13 +10,13 @@ class @MacController extends AbstractController
     @macListener.setOnSetMode (mode) ->
       switch mode
         when 0
-          text = '4 &times; MCN abs.'
+          text = '4 &times; MCN'
         when 1
-          text = '4 &times; MCN cond != 0'
+          text = 'MCAR + 1 + 4 &times; MCN'
         when 2
-          text = '4 &times; MCN cond == 0'
+          text = 'MCAR + 1 - 4 &times; MCN'
         when 3
-          text = 'MCAR + 1'
+          text = '4 &times; MCOP abs./cond.'
       ($ '#mac-jumpmode-label').html text
     @macListener.setOnSetCC (cc) ->
       ($ '#mac-cc-tf').val (Utils.decToBin cc, 4)
