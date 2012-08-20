@@ -103,20 +103,6 @@ class @Mac
           when 3
             @setMcarNext(@mcarRegister + 1)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   notifySetMode : (val) ->
     listener.onSetMode?(val) for listener in @macListeners
   notifySetCC : (val) ->
