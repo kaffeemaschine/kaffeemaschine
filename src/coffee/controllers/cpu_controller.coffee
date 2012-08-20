@@ -5,8 +5,6 @@ class @CpuController extends AbstractController
     # conductors
     @cpv = new ConductorPathView()
 
-
-
     alu = new Alu()
     ram = new Ram()
     mac = new Mac()
@@ -16,6 +14,7 @@ class @CpuController extends AbstractController
     @aluController = new AluController alu
     @ramController = new RamController ram
     @romController = new RomController rom
+    @macController = new MacController mac
 
     @initListener()
     @cpu.setCpuListeners [@cpuListener]
